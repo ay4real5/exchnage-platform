@@ -3,7 +3,7 @@ import { SignupForm } from './_components/signup-form';
 
 export default function SignupPage() {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-white">
       <Header />
       <SignupForm />
     </div>

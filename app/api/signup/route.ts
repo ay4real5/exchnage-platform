@@ -26,6 +26,14 @@ export async function POST(req: Request) {
     return NextResponse.json({ id: user.id, email: user.email, name: user.name }, { status: 201 });
   } catch (error: any) {
     console.error('Signup error:', error);
-    return NextResponse.json({ error: 'Something went wrong' }, { status: 500 });
+    const message = error?.message || 'Something went wrong';
+    const code = error?.code;
+    return NextResponse.json(
+      {
+        error: code ? `${message} (code: ${code})` : message,
+        details: error?.meta || undefined,
+      },
+      { status: 500 }
+    );
   }
 }
