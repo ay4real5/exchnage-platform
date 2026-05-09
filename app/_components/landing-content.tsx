@@ -112,14 +112,8 @@ const testimonials = [
 export function LandingContent() {
   return (
     <main className="relative overflow-hidden">
-      {/* Background Effects */}
-      <div className="absolute inset-0 -z-10">
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/20 rounded-full blur-3xl" />
-        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl" />
-      </div>
-
       {/* Hero Section */}
-      <section className="relative pt-20 pb-32 px-4">
+      <section className="relative pt-20 pb-32 px-4 bg-gradient-to-b from-white via-blue-50/30 to-white">
         <div className="mx-auto max-w-[1200px]">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -194,7 +188,7 @@ export function LandingContent() {
       </section>
 
       {/* How It Works */}
-      <section className="py-24 px-4 bg-muted/50">
+      <section className="py-24 px-4 bg-gradient-to-b from-white via-slate-50/50 to-white">
         <div className="mx-auto max-w-[1200px]">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -279,7 +273,7 @@ export function LandingContent() {
       </section>
 
       {/* Testimonials */}
-      <section className="py-24 px-4 bg-gradient-to-b from-muted/50 to-background">
+      <section className="py-24 px-4 bg-white">
         <div className="mx-auto max-w-[1200px]">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
