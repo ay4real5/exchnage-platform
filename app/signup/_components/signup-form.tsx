@@ -18,42 +18,75 @@ export function SignupForm() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
 
+  const [error, setError] = useState('');
+
   const handleSubmit = async (e: React.FormEvent) => {
     e?.preventDefault?.();
+    setError('');
+    
     if (!name || !email || !password || !confirmPassword) {
       toast.error('Please fill in all fields');
+      setError('Please fill in all fields');
       return;
     }
     if (password !== confirmPassword) {
       toast.error('Passwords do not match');
+      setError('Passwords do not match');
       return;
     }
     if ((password?.length ?? 0) < 6) {
       toast.error('Password must be at least 6 characters');
+      setError('Password must be at least 6 characters');
       return;
     }
+    
     setLoading(true);
     try {
+      console.log('Submitting signup...', { name, email });
+      
       const res = await fetch('/api/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, email, password }),
       });
-      const data = await res.json();
+      
+      console.log('Signup response status:', res.status);
+      
+      let data;
+      try {
+        data = await res.json();
+      } catch (parseError) {
+        console.error('Failed to parse response:', parseError);
+        throw new Error('Server returned invalid response');
+      }
+      
+      console.log('Signup response data:', data);
+      
       if (!res.ok) {
-        toast.error(data?.error ?? 'Signup failed');
+        const errorMsg = data?.error ?? `Signup failed (${res.status})`;
+        toast.error(errorMsg);
+        setError(errorMsg);
         return;
       }
+      
       toast.success('Account created! Signing you in...');
-      await signIn('credentials', {
+      
+      const signInResult = await signIn('credentials', {
         email,
         password,
         redirect: true,
         callbackUrl: '/dashboard',
       });
+      
+      if (signInResult?.error) {
+        toast.error('Auto-login failed. Please sign in manually.');
+        setError('Auto-login failed. Please sign in manually.');
+      }
     } catch (error: any) {
       console.error('Signup error:', error);
-      toast.error('Something went wrong');
+      const errorMsg = error?.message ?? 'Network error. Please check your connection.';
+      toast.error(errorMsg);
+      setError(errorMsg);
     } finally {
       setLoading(false);
     }
@@ -76,6 +109,11 @@ export function SignupForm() {
             <CardDescription>Start converting crypto to fiat today</CardDescription>
           </CardHeader>
           <CardContent>
+            {error && (
+              <div className="mb-4 p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-600 text-sm">
+                {error}
+              </div>
+            )}
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="name">Full Name</Label>
