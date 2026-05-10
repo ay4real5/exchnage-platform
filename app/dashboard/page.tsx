@@ -1,11 +1,10 @@
-import { Header } from '@/components/header';
-import { DashboardContent } from './_components/dashboard-content';
+import { DashboardShell } from './_components/dashboard-shell';
+import { DashboardOverview } from './_components/dashboard-overview';
 
 export default function DashboardPage() {
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
-      <DashboardContent />
-    </div>
+    <DashboardShell>
+      <DashboardOverview />
+    </DashboardShell>
   );
 }
