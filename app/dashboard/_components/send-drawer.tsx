@@ -371,67 +371,89 @@ export function SendDrawer({ open, onClose, prefillCrypto, prefillAmount }: { op
                       </div>
                     </div>
 
-                    {/* Bank search + list */}
+                    {/* Bank Dropdown */}
                     <div className="rounded-2xl bg-white/5 border border-white/5 p-3">
                       <label className="text-[10px] uppercase tracking-wider text-zinc-500 mb-2 block">Select Bank</label>
-                      <input
-                        value={bankSearch}
-                        onChange={(e) => setBankSearch(e.target.value)}
-                        placeholder="Search banks..."
-                        className="w-full bg-white/5 rounded-xl px-3 py-2 text-sm text-white placeholder:text-zinc-700 focus:outline-none border border-white/5 focus:border-indigo-500/30 transition-colors"
-                      />
-                      <div className="mt-2 max-h-[260px] overflow-y-auto space-y-0.5 scrollbar-none">
-                        {(form.fiatCurrency === 'GBP' ? banksGBP : banksNGN)
-                          .filter((b) => b.name.toLowerCase().includes(bankSearch.toLowerCase()))
-                          .map((b) => (
-                            <button
-                              key={b.name}
-                              onClick={() => { update('bankName', b.name); setBankSearch(''); setShowOther(false); setOtherBank(''); }}
-                              className={`w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-all ${form.bankName === b.name && !showOther ? 'bg-white/[0.07] ring-1 ring-white/10' : 'hover:bg-white/[0.03]'}`}
+
+                      {/* Selected bank card (compact) */}
+                      {form.bankName && (
+                        <div className="flex items-center gap-3 mb-3 rounded-xl bg-white/[0.07] ring-1 ring-white/10 px-3 py-2.5">
+                          {(form.fiatCurrency === 'GBP' ? banksGBP : banksNGN).find(b => b.name === form.bankName)?.color ? (
+                            <div
+                              className="h-9 w-9 rounded-full flex items-center justify-center text-[11px] font-bold text-white shrink-0 shadow-sm"
+                              style={{ background: `linear-gradient(135deg, ${(form.fiatCurrency === 'GBP' ? banksGBP : banksNGN).find(b => b.name === form.bankName)!.color}dd, ${(form.fiatCurrency === 'GBP' ? banksGBP : banksNGN).find(b => b.name === form.bankName)!.color})` }}
                             >
-                              {/* Polished circular badge */}
-                              <div
-                                className="h-9 w-9 rounded-full flex items-center justify-center text-[11px] font-bold text-white shrink-0 shadow-sm"
-                                style={{ background: `linear-gradient(135deg, ${b.color}dd, ${b.color})` }}
-                              >
-                                {b.name.split(' ').map(w => w[0]).join('').slice(0, 2)}
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <span className="text-sm text-white font-medium block truncate">{b.name}</span>
-                              </div>
-                              {form.bankName === b.name && !showOther && (
-                                <div className="h-5 w-5 rounded-full bg-emerald-500/20 flex items-center justify-center shrink-0">
-                                  <Check className="h-3 w-3 text-emerald-400" />
-                                </div>
-                              )}
-                            </button>
-                          ))}
-                        {/* Other option */}
-                        <button
-                          onClick={() => { setShowOther(true); update('bankName', otherBank); }}
-                          className={`w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-all ${showOther ? 'bg-white/[0.07] ring-1 ring-white/10' : 'hover:bg-white/[0.03]'}`}
-                        >
-                          <div className="h-9 w-9 rounded-full flex items-center justify-center text-[11px] font-bold text-zinc-400 shrink-0 bg-zinc-800 border border-zinc-700">
-                            <Plus className="h-4 w-4" />
-                          </div>
-                          <span className="text-sm text-zinc-400 font-medium">Other Bank...</span>
-                          {showOther && (
-                            <div className="h-5 w-5 rounded-full bg-emerald-500/20 flex items-center justify-center shrink-0">
-                              <Check className="h-3 w-3 text-emerald-400" />
+                              {form.bankName.split(' ').map(w => w[0]).join('').slice(0, 2)}
+                            </div>
+                          ) : (
+                            <div className="h-9 w-9 rounded-full flex items-center justify-center text-[11px] font-bold text-zinc-400 shrink-0 bg-zinc-800 border border-zinc-700">
+                              <Landmark className="h-4 w-4" />
                             </div>
                           )}
-                        </button>
-                      </div>
-                      {/* Manual input when Other is selected */}
-                      {showOther && (
-                        <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="mt-2">
+                          <div className="flex-1 min-w-0">
+                            <span className="text-sm text-white font-medium block truncate">{form.bankName}</span>
+                          </div>
+                          <button
+                            onClick={() => { setBankSearch(''); setShowOther(false); setOtherBank(''); update('bankName', ''); }}
+                            className="text-[10px] text-zinc-500 hover:text-zinc-300 underline"
+                          >
+                            Change
+                          </button>
+                        </div>
+                      )}
+
+                      {/* Dropdown trigger when no bank selected */}
+                      {!form.bankName && (
+                        <div className="space-y-2">
                           <input
-                            value={otherBank}
-                            onChange={(e) => { setOtherBank(e.target.value); update('bankName', e.target.value); }}
-                            placeholder="Type bank name..."
-                            className="w-full bg-white/5 rounded-xl px-3 py-2.5 text-sm text-white placeholder:text-zinc-700 focus:outline-none border border-white/5 focus:border-indigo-500/30 transition-colors"
+                            value={bankSearch}
+                            onChange={(e) => setBankSearch(e.target.value)}
+                            placeholder="Search banks..."
+                            className="w-full bg-white/5 rounded-xl px-3 py-2 text-sm text-white placeholder:text-zinc-700 focus:outline-none border border-white/5 focus:border-indigo-500/30 transition-colors"
                           />
-                        </motion.div>
+                          <div className="max-h-[220px] overflow-y-auto space-y-0.5 scrollbar-none">
+                            {(form.fiatCurrency === 'GBP' ? banksGBP : banksNGN)
+                              .filter((b) => b.name.toLowerCase().includes(bankSearch.toLowerCase()))
+                              .map((b) => (
+                                <button
+                                  key={b.name}
+                                  onClick={() => { update('bankName', b.name); setBankSearch(''); setShowOther(false); setOtherBank(''); }}
+                                  className="w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-all hover:bg-white/[0.03]"
+                                >
+                                  <div
+                                    className="h-9 w-9 rounded-full flex items-center justify-center text-[11px] font-bold text-white shrink-0 shadow-sm"
+                                    style={{ background: `linear-gradient(135deg, ${b.color}dd, ${b.color})` }}
+                                  >
+                                    {b.name.split(' ').map(w => w[0]).join('').slice(0, 2)}
+                                  </div>
+                                  <div className="flex-1 min-w-0">
+                                    <span className="text-sm text-white font-medium block truncate">{b.name}</span>
+                                  </div>
+                                </button>
+                              ))}
+                            {/* Other option */}
+                            <button
+                              onClick={() => { setShowOther(true); setBankSearch(''); }}
+                              className="w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-all hover:bg-white/[0.03]"
+                            >
+                              <div className="h-9 w-9 rounded-full flex items-center justify-center text-[11px] font-bold text-zinc-400 shrink-0 bg-zinc-800 border border-zinc-700">
+                                <Plus className="h-4 w-4" />
+                              </div>
+                              <span className="text-sm text-zinc-400 font-medium">Other Bank...</span>
+                            </button>
+                          </div>
+                          {/* Manual input when Other is selected */}
+                          {showOther && (
+                            <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="mt-2">
+                              <input
+                                value={otherBank}
+                                onChange={(e) => { setOtherBank(e.target.value); update('bankName', e.target.value); }}
+                                placeholder="Type bank name..."
+                                className="w-full bg-white/5 rounded-xl px-3 py-2.5 text-sm text-white placeholder:text-zinc-700 focus:outline-none border border-white/5 focus:border-indigo-500/30 transition-colors"
+                              />
+                            </motion.div>
+                          )}
+                        </div>
                       )}
                     </div>
 
