@@ -33,7 +33,8 @@ export async function GET(req: Request) {
     return NextResponse.json(transactions);
   } catch (error: any) {
     console.error('Fetch transactions error:', error);
-    return NextResponse.json({ error: 'Failed to fetch transactions' }, { status: 500 });
+    const message = error?.message || 'Unknown error';
+    return NextResponse.json({ error: 'Failed to fetch transactions', details: message }, { status: 500 });
   }
 }
 

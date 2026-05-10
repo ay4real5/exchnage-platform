@@ -135,7 +135,7 @@ export function TransactionManager() {
       const res = await fetch(`/api/transactions?status=${filter}`);
       const data = await res.json();
       if (!res.ok) {
-        setError(data?.error ?? 'Failed to load transactions');
+        setError(data?.details ?? data?.error ?? 'Failed to load transactions');
         setTransactions([]);
         return;
       }
