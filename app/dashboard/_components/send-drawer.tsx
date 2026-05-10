@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Send, ArrowRight, CheckCircle2, Wallet, Landmark, Receipt, Copy, Check, ScanLine } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -42,6 +42,19 @@ export function SendDrawer({ open, onClose, prefillCrypto, prefillAmount }: { op
   });
 
   const update = (field: string, value: string) => setForm((p: any) => ({ ...p, [field]: value }));
+
+  // Sync prefill values when drawer opens
+  useEffect(() => {
+    if (open) {
+      setForm((prev: any) => ({
+        ...prev,
+        cryptoType: prefillCrypto ?? prev.cryptoType ?? 'BTC',
+        amountCrypto: prefillAmount ?? prev.amountCrypto ?? '',
+      }));
+      setStep(1);
+      setDone(false);
+    }
+  }, [open, prefillCrypto, prefillAmount]);
 
   const copyAddress = async () => {
     try {
