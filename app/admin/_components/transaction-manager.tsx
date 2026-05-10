@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   CheckCircle2, Loader2, FileStack, ExternalLink, MessageSquare,
   LayoutList, Columns3, Search, RotateCcw, Volume2, VolumeX,
-  User, Bitcoin, Building2, ArrowRight, ShieldCheck, Ban, Banknote,
+  User, Bitcoin, Building2, ArrowRight, ShieldCheck, Ban, Banknote, AlertTriangle,
   ChevronDown, ChevronUp
 } from 'lucide-react';
 import { toast } from 'sonner';
@@ -126,14 +126,22 @@ export function TransactionManager() {
   const [noteInputs, setNoteInputs] = useState<Record<string, string>>({});
   const [fiatInputs, setFiatInputs] = useState<Record<string, string>>({});
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
+  const [error, setError] = useState<string | null>(null);
 
   const fetchTransactions = useCallback(async () => {
     setLoading(true);
+    setError(null);
     try {
       const res = await fetch(`/api/transactions?status=${filter}`);
       const data = await res.json();
+      if (!res.ok) {
+        setError(data?.error ?? 'Failed to load transactions');
+        setTransactions([]);
+        return;
+      }
       setTransactions(Array.isArray(data) ? data : []);
     } catch (e: any) {
+      setError('Network error — check console');
       console.error(e);
     } finally {
       setLoading(false);
@@ -495,11 +503,21 @@ export function TransactionManager() {
         </div>
       </div>
 
+      {error && (
+        <div className="rounded-xl border border-rose-500/20 bg-rose-500/10 p-4 flex items-center gap-3">
+          <AlertTriangle className="h-5 w-5 text-rose-400 flex-shrink-0" />
+          <div>
+            <p className="text-sm font-semibold text-rose-400">{error}</p>
+            <button onClick={fetchTransactions} className="text-xs text-rose-300 underline mt-1">Retry</button>
+          </div>
+        </div>
+      )}
+
       {loading && transactions.length === 0 ? (
         <div className="flex items-center justify-center py-12">
           <Loader2 className="h-6 w-6 animate-spin text-indigo-400" />
         </div>
-      ) : filtered.length === 0 ? (
+      ) : filtered.length === 0 && !error ? (
         <div className="text-center py-12 text-zinc-500">
           <FileStack className="h-8 w-8 mx-auto mb-2 opacity-50" />
           <p>No transactions found.</p>
