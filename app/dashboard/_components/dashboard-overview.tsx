@@ -8,8 +8,6 @@ import { TransactionStream } from './transaction-stream';
 import { ActivityFeed } from './activity-feed';
 import { SendDrawer } from './send-drawer';
 import { WalletDrawer } from './wallet-drawer';
-import { FloatingFab } from './floating-fab';
-
 export function DashboardOverview() {
   const searchParams = useSearchParams();
   const [sendOpen, setSendOpen] = useState(false);
@@ -52,7 +50,6 @@ export function DashboardOverview() {
         </div>
       </div>
 
-      <FloatingFab onClick={() => openSend()} />
       <SendDrawer open={sendOpen} onClose={() => setSendOpen(false)} prefillCrypto={prefillCrypto} prefillAmount={prefillAmount} />
       <WalletDrawer open={walletOpen} onClose={() => setWalletOpen(false)} onSend={(crypto) => openSend(crypto)} />
     </div>

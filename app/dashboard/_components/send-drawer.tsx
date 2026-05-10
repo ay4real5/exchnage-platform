@@ -2,10 +2,11 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Send, ArrowRight, CheckCircle2, Wallet, Landmark, Receipt } from 'lucide-react';
+import { X, Send, ArrowRight, CheckCircle2, Wallet, Landmark, Receipt, Copy, Check, ScanLine } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import useSWR from 'swr';
+import { QRCodeSVG } from 'qrcode.react';
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
 
@@ -17,10 +18,17 @@ const cryptoMeta: Record<string, { color: string; border: string; bg: string; pr
 
 const demoRates: Record<string, number> = { BTC: 64000, USDT: 1, ETH: 3400 };
 
+const walletAddresses: Record<string, string> = {
+  BTC: 'bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh',
+  USDT: '0xdAC17F958D2ee523a2206206994597C13D831ec7',
+  ETH: '0x71C7656EC7ab88b098defB751B7401B5f6d8976F',
+};
+
 export function SendDrawer({ open, onClose, prefillCrypto, prefillAmount }: { open: boolean; onClose: () => void; prefillCrypto?: string; prefillAmount?: string }) {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
+  const [copied, setCopied] = useState(false);
   const { data: prices } = useSWR('/api/prices', fetcher, { refreshInterval: 60000 });
 
   const [form, setForm] = useState({
@@ -34,6 +42,15 @@ export function SendDrawer({ open, onClose, prefillCrypto, prefillAmount }: { op
   });
 
   const update = (field: string, value: string) => setForm((p: any) => ({ ...p, [field]: value }));
+
+  const copyAddress = async () => {
+    try {
+      await navigator.clipboard.writeText(walletAddresses[form.cryptoType]);
+      setCopied(true);
+      toast.success('Address copied');
+      setTimeout(() => setCopied(false), 2000);
+    } catch {}
+  };
 
   const usdPrice = prices?.[cryptoMeta[form.cryptoType].priceKey]?.usd ?? demoRates[form.cryptoType];
   const usdValue = form.amountCrypto ? parseFloat(form.amountCrypto) * usdPrice : 0;
@@ -129,9 +146,36 @@ export function SendDrawer({ open, onClose, prefillCrypto, prefillAmount }: { op
                       })}
                     </div>
 
+                    {/* Deposit card — QR + address */}
+                    <div className={`rounded-2xl border p-4 space-y-3 ${cryptoMeta[form.cryptoType].border} bg-white/[0.03]`}>
+                      <div className="flex items-center gap-2 mb-1">
+                        <ScanLine className="h-4 w-4" style={{ color: cryptoMeta[form.cryptoType].color }} />
+                        <span className="text-xs font-semibold text-zinc-300">Deposit {form.cryptoType}</span>
+                      </div>
+                      <div className="flex justify-center">
+                        <div className="p-2 bg-white rounded-lg">
+                          <QRCodeSVG value={walletAddresses[form.cryptoType]} size={140} level="M" bgColor="#ffffff" fgColor="#000000" />
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <code className="flex-1 rounded-lg bg-black/30 border border-white/5 p-2.5 text-[11px] font-mono break-all text-zinc-300">{walletAddresses[form.cryptoType]}</code>
+                        <Button variant="outline" size="icon" className="border-zinc-700 hover:bg-zinc-800 text-zinc-400 shrink-0" onClick={copyAddress}>
+                          {copied ? <Check className="h-3.5 w-3.5 text-emerald-400" /> : <Copy className="h-3.5 w-3.5" />}
+                        </Button>
+                      </div>
+                      <Button
+                        className="w-full h-9 rounded-xl text-xs"
+                        style={{ background: cryptoMeta[form.cryptoType].color, color: '#fff' }}
+                        onClick={copyAddress}
+                      >
+                        {copied ? 'Copied!' : <>Copy Address <Copy className="h-3.5 w-3.5 ml-1.5" /></>}
+                      </Button>
+                      <p className="text-[10px] text-zinc-500 text-center">Send from your wallet, then enter details below</p>
+                    </div>
+
                     {/* Amount */}
                     <div className="rounded-2xl bg-white/5 border border-white/5 p-4 focus-within:border-indigo-500/30 transition-colors">
-                      <label className="text-[10px] uppercase tracking-wider text-zinc-500 mb-2 block">Amount</label>
+                      <label className="text-[10px] uppercase tracking-wider text-zinc-500 mb-2 block">Amount Sent</label>
                       <input type="number" step="any" value={form.amountCrypto} onChange={(e: any) => update('amountCrypto', e.target.value)} placeholder="0.00" className="w-full bg-transparent text-2xl font-bold text-white placeholder:text-zinc-700 focus:outline-none tabular-nums" />
                       {usdValue > 0 && (
                         <p className="text-xs text-zinc-500 mt-1">≈ ${usdValue.toLocaleString(undefined, { maximumFractionDigits: 2 })}</p>
