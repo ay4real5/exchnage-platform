@@ -37,6 +37,10 @@ export function QuickConvert({ onSend }: { onSend?: (crypto: string, amount: str
   const converted = amount ? (parseFloat(amount) * rate * (fiat === 'GBP' ? 0.00048 : 1)) : 0;
   const symbol = fiat === 'GBP' ? '£' : '₦';
 
+  // Live USD equivalent
+  const usdRate = crypto === 'BTC' ? price : crypto === 'ETH' ? (prices?.ethereum?.usd ?? 3400) : (prices?.tether?.usd ?? 1);
+  const usdValue = amount ? parseFloat(amount) * usdRate : 0;
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -78,6 +82,9 @@ export function QuickConvert({ onSend }: { onSend?: (crypto: string, amount: str
               onChange={(e) => setAmount(e.target.value)}
               className="w-full bg-transparent text-2xl font-bold text-white placeholder:text-zinc-700 focus:outline-none tabular-nums"
             />
+            {usdValue > 0 && (
+              <p className="text-xs text-zinc-500 mt-1">≈ ${usdValue.toLocaleString(undefined, { maximumFractionDigits: 2 })}</p>
+            )}
           </div>
 
           {/* Swap button */}
