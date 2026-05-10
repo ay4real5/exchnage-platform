@@ -24,6 +24,50 @@ const walletAddresses: Record<string, string> = {
   ETH: '0x71C7656EC7ab88b098defB751B7401B5f6d8976F',
 };
 
+const banksNGN: { name: string; color: string }[] = [
+  { name: 'Access Bank', color: '#C41E3A' },
+  { name: 'GTBank', color: '#E94B3C' },
+  { name: 'First Bank of Nigeria', color: '#1A4B8C' },
+  { name: 'UBA', color: '#D52B1E' },
+  { name: 'Zenith Bank', color: '#E3001B' },
+  { name: 'Fidelity Bank', color: '#008C45' },
+  { name: 'Union Bank', color: '#003B7E' },
+  { name: 'Sterling Bank', color: '#C41E3A' },
+  { name: 'Ecobank', color: '#0056A3' },
+  { name: 'Wema Bank', color: '#6B1C8C' },
+  { name: 'Polaris Bank', color: '#004F9E' },
+  { name: 'Stanbic IBTC', color: '#00A651' },
+  { name: 'FCMB', color: '#8B0000' },
+  { name: 'Keystone Bank', color: '#003B7E' },
+  { name: 'Unity Bank', color: '#008C45' },
+  { name: 'Heritage Bank', color: '#006400' },
+  { name: 'Jaiz Bank', color: '#1A4B8C' },
+  { name: 'Providus Bank', color: '#003B7E' },
+  { name: 'Titan Trust Bank', color: '#0056A3' },
+  { name: 'Opay', color: '#00A651' },
+  { name: 'Palmpay', color: '#8B4513' },
+  { name: 'Kuda Bank', color: '#4B0082' },
+];
+
+const banksGBP: { name: string; color: string }[] = [
+  { name: 'Barclays', color: '#00AEEF' },
+  { name: 'HSBC UK', color: '#DB0011' },
+  { name: 'Lloyds Bank', color: '#006A4D' },
+  { name: 'NatWest', color: '#42145F' },
+  { name: 'Santander', color: '#EC0000' },
+  { name: 'Nationwide', color: '#002878' },
+  { name: 'Halifax', color: '#0073CF' },
+  { name: 'Monzo', color: '#FF4F00' },
+  { name: 'Starling Bank', color: '#572D6B' },
+  { name: 'Revolut', color: '#0075EB' },
+  { name: 'Metro Bank', color: '#D52B1E' },
+  { name: 'TSB', color: '#003B7E' },
+  { name: 'Co-operative Bank', color: '#008C45' },
+  { name: 'Virgin Money', color: '#E3001B' },
+  { name: 'First Direct', color: '#000000' },
+  { name: 'Clydesdale Bank', color: '#8B0000' },
+];
+
 export function SendDrawer({ open, onClose, prefillCrypto, prefillAmount }: { open: boolean; onClose: () => void; prefillCrypto?: string; prefillAmount?: string }) {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
@@ -39,7 +83,9 @@ export function SendDrawer({ open, onClose, prefillCrypto, prefillAmount }: { op
     bankName: '',
     accountNumber: '',
     accountName: '',
+    sortCode: '',
   });
+  const [bankSearch, setBankSearch] = useState('');
 
   const update = (field: string, value: string) => setForm((p: any) => ({ ...p, [field]: value }));
 
@@ -70,7 +116,7 @@ export function SendDrawer({ open, onClose, prefillCrypto, prefillAmount }: { op
 
   const canNext = step === 1
     ? form.amountCrypto && parseFloat(form.amountCrypto) > 0 && form.transactionHash
-    : form.bankName && form.accountNumber && form.accountName;
+    : form.bankName && form.accountNumber && form.accountName && (form.fiatCurrency === 'GBP' ? form.sortCode : true);
 
   const submit = async () => {
     setLoading(true);
@@ -83,7 +129,7 @@ export function SendDrawer({ open, onClose, prefillCrypto, prefillAmount }: { op
     setLoading(false);
   };
 
-  const reset = () => { setStep(1); setDone(false); setForm({ cryptoType: 'BTC', amountCrypto: '', transactionHash: '', fiatCurrency: 'NGN', bankName: '', accountNumber: '', accountName: '' }); };
+  const reset = () => { setStep(1); setDone(false); setBankSearch(''); setForm({ cryptoType: 'BTC', amountCrypto: '', transactionHash: '', fiatCurrency: 'NGN', bankName: '', accountNumber: '', accountName: '', sortCode: '' }); };
 
   const steps = [
     { num: 1, label: 'Wallet', icon: Wallet },
@@ -225,17 +271,52 @@ export function SendDrawer({ open, onClose, prefillCrypto, prefillAmount }: { op
                       </div>
                       <div>
                         <h4 className="text-sm font-semibold">Payout Account</h4>
-                        <p className="text-[10px] text-zinc-500">Where we send your fiat</p>
+                        <p className="text-[10px] text-zinc-500">Where we send your {form.fiatCurrency}</p>
                       </div>
                     </div>
-                    <div className="rounded-2xl bg-white/5 border border-white/5 p-4 focus-within:border-indigo-500/30 transition-colors">
-                      <label className="text-[10px] uppercase tracking-wider text-zinc-500 mb-2 block">Bank Name</label>
-                      <input value={form.bankName} onChange={(e: any) => update('bankName', e.target.value)} placeholder="e.g. First Bank" className="w-full bg-transparent text-white placeholder:text-zinc-700 focus:outline-none" />
+
+                    {/* Bank search + list */}
+                    <div className="rounded-2xl bg-white/5 border border-white/5 p-3">
+                      <label className="text-[10px] uppercase tracking-wider text-zinc-500 mb-2 block">Select Bank</label>
+                      <input
+                        value={bankSearch}
+                        onChange={(e) => setBankSearch(e.target.value)}
+                        placeholder="Search banks..."
+                        className="w-full bg-white/5 rounded-xl px-3 py-2 text-sm text-white placeholder:text-zinc-700 focus:outline-none border border-white/5 focus:border-indigo-500/30 transition-colors"
+                      />
+                      <div className="mt-2 max-h-[200px] overflow-y-auto space-y-1 scrollbar-none">
+                        {(form.fiatCurrency === 'GBP' ? banksGBP : banksNGN)
+                          .filter((b) => b.name.toLowerCase().includes(bankSearch.toLowerCase()))
+                          .map((b) => (
+                            <button
+                              key={b.name}
+                              onClick={() => { update('bankName', b.name); setBankSearch(''); }}
+                              className={`w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-colors ${form.bankName === b.name ? 'bg-white/10 border border-white/10' : 'hover:bg-white/5 border border-transparent'}`}
+                            >
+                              <div className="h-8 w-8 rounded-lg flex items-center justify-center text-[10px] font-bold text-white shrink-0" style={{ background: b.color }}>
+                                {b.name.charAt(0)}
+                              </div>
+                              <span className="text-sm text-white">{b.name}</span>
+                              {form.bankName === b.name && <CheckCircle2 className="h-4 w-4 text-emerald-400 ml-auto" />}
+                            </button>
+                          ))}
+                      </div>
                     </div>
+
+                    {/* Account Number */}
                     <div className="rounded-2xl bg-white/5 border border-white/5 p-4 focus-within:border-indigo-500/30 transition-colors">
                       <label className="text-[10px] uppercase tracking-wider text-zinc-500 mb-2 block">Account Number</label>
-                      <input value={form.accountNumber} onChange={(e: any) => update('accountNumber', e.target.value)} placeholder="10 digit number" className="w-full bg-transparent text-white placeholder:text-zinc-700 focus:outline-none tabular-nums" />
+                      <input value={form.accountNumber} onChange={(e: any) => update('accountNumber', e.target.value)} placeholder={form.fiatCurrency === 'GBP' ? '8 digit number' : '10 digit number'} className="w-full bg-transparent text-white placeholder:text-zinc-700 focus:outline-none tabular-nums" />
                     </div>
+
+                    {/* Sort Code for GBP only */}
+                    {form.fiatCurrency === 'GBP' && (
+                      <div className="rounded-2xl bg-white/5 border border-white/5 p-4 focus-within:border-indigo-500/30 transition-colors">
+                        <label className="text-[10px] uppercase tracking-wider text-zinc-500 mb-2 block">Sort Code</label>
+                        <input value={form.sortCode} onChange={(e: any) => update('sortCode', e.target.value)} placeholder="e.g. 12-34-56" className="w-full bg-transparent text-white placeholder:text-zinc-700 focus:outline-none tabular-nums" />
+                      </div>
+                    )}
+
                     <div className="rounded-2xl bg-white/5 border border-white/5 p-4 focus-within:border-indigo-500/30 transition-colors">
                       <label className="text-[10px] uppercase tracking-wider text-zinc-500 mb-2 block">Account Name</label>
                       <input value={form.accountName} onChange={(e: any) => update('accountName', e.target.value)} placeholder="Full name on account" className="w-full bg-transparent text-white placeholder:text-zinc-700 focus:outline-none" />
@@ -267,6 +348,12 @@ export function SendDrawer({ open, onClose, prefillCrypto, prefillAmount }: { op
                           <span className="text-sm text-zinc-500">Account</span>
                           <span className="text-sm text-white font-mono">{form.accountNumber}</span>
                         </div>
+                        {form.fiatCurrency === 'GBP' && form.sortCode && (
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm text-zinc-500">Sort Code</span>
+                            <span className="text-sm text-white font-mono">{form.sortCode}</span>
+                          </div>
+                        )}
                       </div>
                     </div>
                     <div className="rounded-xl bg-amber-500/10 border border-amber-500/20 px-3 py-2">
