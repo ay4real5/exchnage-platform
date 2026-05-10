@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Users, FileStack, Clock, CheckCircle2, Banknote, XCircle, Loader2, TrendingUp, Activity } from 'lucide-react';
 
-export function AdminStats() {
+export function AdminStats({ onViewTransactions }: { onViewTransactions?: () => void }) {
   const [stats, setStats] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
@@ -46,28 +46,56 @@ export function AdminStats() {
     { label: 'Active Today', value: stats?.pendingCount ?? 0, icon: Activity, color: '#EC4899' },
   ];
 
+  const pendingCount = stats?.pendingCount ?? 0;
+
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-      {cards.map((s, i) => {
-        const Icon = s.icon;
-        return (
-          <motion.div
-            key={s.label}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, delay: i * 0.05 }}
-            className="rounded-2xl border border-white/10 bg-white/[0.03] backdrop-blur-xl p-4 hover:bg-white/[0.05] transition-colors"
-          >
-            <div className="flex items-center gap-2 mb-2">
-              <div className="h-8 w-8 rounded-lg flex items-center justify-center" style={{ background: s.color + '15' }}>
-                <Icon className="h-4 w-4" style={{ color: s.color }} />
-              </div>
+    <div className="space-y-4">
+      {pendingCount > 0 && onViewTransactions && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="rounded-2xl border border-amber-500/20 bg-amber-500/10 backdrop-blur-xl p-4 flex items-center justify-between"
+        >
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-full bg-amber-500/20 flex items-center justify-center">
+              <Clock className="h-5 w-5 text-amber-400" />
             </div>
-            <p className="text-[10px] text-zinc-500 uppercase tracking-wider">{s.label}</p>
-            <p className="text-xl font-bold text-white mt-0.5">{s.value}</p>
-          </motion.div>
-        );
-      })}
+            <div>
+              <p className="text-sm font-semibold text-amber-300">{pendingCount} transaction{pendingCount !== 1 ? 's' : ''} pending review</p>
+              <p className="text-xs text-amber-400/70">Awaiting admin confirmation</p>
+            </div>
+          </div>
+          <button
+            onClick={onViewTransactions}
+            className="px-4 py-2 rounded-lg bg-amber-500 text-black text-sm font-bold hover:bg-amber-400 transition-colors"
+          >
+            Review Now →
+          </button>
+        </motion.div>
+      )}
+
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        {cards.map((s, i) => {
+          const Icon = s.icon;
+          return (
+            <motion.div
+              key={s.label}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, delay: i * 0.05 }}
+              className="rounded-2xl border border-white/10 bg-white/[0.03] backdrop-blur-xl p-4 hover:bg-white/[0.05] transition-colors"
+            >
+              <div className="flex items-center gap-2 mb-2">
+                <div className="h-8 w-8 rounded-lg flex items-center justify-center" style={{ background: s.color + '15' }}>
+                  <Icon className="h-4 w-4" style={{ color: s.color }} />
+                </div>
+              </div>
+              <p className="text-[10px] text-zinc-500 uppercase tracking-wider">{s.label}</p>
+              <p className="text-xl font-bold text-white mt-0.5">{s.value}</p>
+            </motion.div>
+          );
+        })}
+      </div>
     </div>
   );
 }

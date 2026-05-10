@@ -98,7 +98,7 @@ export function AdminContent() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4 }}
         >
-          {tab === 'overview' && <AdminStats />}
+          {tab === 'overview' && <AdminStats onViewTransactions={() => setTab('transactions')} />}
           {tab === 'wallets' && <WalletManager />}
           {tab === 'transactions' && <TransactionManager />}
         </motion.div>
