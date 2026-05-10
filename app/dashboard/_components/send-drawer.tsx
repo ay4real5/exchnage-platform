@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Send, ArrowRight, CheckCircle2, Wallet, Landmark, Receipt, Copy, Check, ScanLine } from 'lucide-react';
+import { X, Send, ArrowRight, CheckCircle2, Wallet, Landmark, Receipt, Copy, Check, ScanLine, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import useSWR from 'swr';
@@ -380,32 +380,46 @@ export function SendDrawer({ open, onClose, prefillCrypto, prefillAmount }: { op
                         placeholder="Search banks..."
                         className="w-full bg-white/5 rounded-xl px-3 py-2 text-sm text-white placeholder:text-zinc-700 focus:outline-none border border-white/5 focus:border-indigo-500/30 transition-colors"
                       />
-                      <div className="mt-2 max-h-[200px] overflow-y-auto space-y-1 scrollbar-none">
+                      <div className="mt-2 max-h-[260px] overflow-y-auto space-y-0.5 scrollbar-none">
                         {(form.fiatCurrency === 'GBP' ? banksGBP : banksNGN)
                           .filter((b) => b.name.toLowerCase().includes(bankSearch.toLowerCase()))
                           .map((b) => (
                             <button
                               key={b.name}
                               onClick={() => { update('bankName', b.name); setBankSearch(''); setShowOther(false); setOtherBank(''); }}
-                              className={`w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-colors ${form.bankName === b.name && !showOther ? 'bg-white/10 border border-white/10' : 'hover:bg-white/5 border border-transparent'}`}
+                              className={`w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-all ${form.bankName === b.name && !showOther ? 'bg-white/[0.07] ring-1 ring-white/10' : 'hover:bg-white/[0.03]'}`}
                             >
-                              <div className="h-8 w-8 rounded-lg flex items-center justify-center text-[10px] font-bold text-white shrink-0" style={{ background: b.color }}>
-                                {b.name.charAt(0)}
+                              {/* Polished circular badge */}
+                              <div
+                                className="h-9 w-9 rounded-full flex items-center justify-center text-[11px] font-bold text-white shrink-0 shadow-sm"
+                                style={{ background: `linear-gradient(135deg, ${b.color}dd, ${b.color})` }}
+                              >
+                                {b.name.split(' ').map(w => w[0]).join('').slice(0, 2)}
                               </div>
-                              <span className="text-sm text-white">{b.name}</span>
-                              {form.bankName === b.name && !showOther && <CheckCircle2 className="h-4 w-4 text-emerald-400 ml-auto" />}
+                              <div className="flex-1 min-w-0">
+                                <span className="text-sm text-white font-medium block truncate">{b.name}</span>
+                              </div>
+                              {form.bankName === b.name && !showOther && (
+                                <div className="h-5 w-5 rounded-full bg-emerald-500/20 flex items-center justify-center shrink-0">
+                                  <Check className="h-3 w-3 text-emerald-400" />
+                                </div>
+                              )}
                             </button>
                           ))}
                         {/* Other option */}
                         <button
                           onClick={() => { setShowOther(true); update('bankName', otherBank); }}
-                          className={`w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-colors ${showOther ? 'bg-white/10 border border-white/10' : 'hover:bg-white/5 border border-transparent'}`}
+                          className={`w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-all ${showOther ? 'bg-white/[0.07] ring-1 ring-white/10' : 'hover:bg-white/[0.03]'}`}
                         >
-                          <div className="h-8 w-8 rounded-lg flex items-center justify-center text-[10px] font-bold text-white shrink-0 bg-zinc-700">
-                            +
+                          <div className="h-9 w-9 rounded-full flex items-center justify-center text-[11px] font-bold text-zinc-400 shrink-0 bg-zinc-800 border border-zinc-700">
+                            <Plus className="h-4 w-4" />
                           </div>
-                          <span className="text-sm text-zinc-300">Other Bank...</span>
-                          {showOther && <CheckCircle2 className="h-4 w-4 text-emerald-400 ml-auto" />}
+                          <span className="text-sm text-zinc-400 font-medium">Other Bank...</span>
+                          {showOther && (
+                            <div className="h-5 w-5 rounded-full bg-emerald-500/20 flex items-center justify-center shrink-0">
+                              <Check className="h-3 w-3 text-emerald-400" />
+                            </div>
+                          )}
                         </button>
                       </div>
                       {/* Manual input when Other is selected */}
