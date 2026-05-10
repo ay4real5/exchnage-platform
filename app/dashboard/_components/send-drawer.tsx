@@ -25,47 +25,141 @@ const walletAddresses: Record<string, string> = {
 };
 
 const banksNGN: { name: string; color: string }[] = [
+  // Commercial Banks (CBN licensed)
   { name: 'Access Bank', color: '#C41E3A' },
-  { name: 'GTBank', color: '#E94B3C' },
-  { name: 'First Bank of Nigeria', color: '#1A4B8C' },
-  { name: 'UBA', color: '#D52B1E' },
-  { name: 'Zenith Bank', color: '#E3001B' },
+  { name: 'Alpha Morgan Bank', color: '#1E3A5F' },
+  { name: 'Citibank Nigeria', color: '#003B7E' },
+  { name: 'Ecobank Nigeria', color: '#0056A3' },
   { name: 'Fidelity Bank', color: '#008C45' },
-  { name: 'Union Bank', color: '#003B7E' },
-  { name: 'Sterling Bank', color: '#C41E3A' },
-  { name: 'Ecobank', color: '#0056A3' },
-  { name: 'Wema Bank', color: '#6B1C8C' },
-  { name: 'Polaris Bank', color: '#004F9E' },
-  { name: 'Stanbic IBTC', color: '#00A651' },
-  { name: 'FCMB', color: '#8B0000' },
+  { name: 'First Bank of Nigeria', color: '#1A4B8C' },
+  { name: 'First City Monument Bank (FCMB)', color: '#8B0000' },
+  { name: 'Globus Bank', color: '#003B7E' },
+  { name: 'Guaranty Trust Bank (GTBank)', color: '#E94B3C' },
   { name: 'Keystone Bank', color: '#003B7E' },
-  { name: 'Unity Bank', color: '#008C45' },
-  { name: 'Heritage Bank', color: '#006400' },
-  { name: 'Jaiz Bank', color: '#1A4B8C' },
+  { name: 'Nova Commercial Bank', color: '#1A4B8C' },
+  { name: 'Optimus Bank', color: '#0056A3' },
+  { name: 'Parallex Bank', color: '#C41E3A' },
+  { name: 'Polaris Bank', color: '#004F9E' },
+  { name: 'Premium Trust Bank', color: '#1E3A5F' },
   { name: 'Providus Bank', color: '#003B7E' },
+  { name: 'Signature Bank', color: '#0056A3' },
+  { name: 'Stanbic IBTC Bank', color: '#00A651' },
+  { name: 'Standard Chartered Bank Nigeria', color: '#003B7E' },
+  { name: 'Sterling Bank', color: '#C41E3A' },
+  { name: 'Summit Bank', color: '#1E3A5F' },
+  { name: 'SunTrust Bank Nigeria', color: '#E3001B' },
+  { name: 'Tatum Bank', color: '#0056A3' },
   { name: 'Titan Trust Bank', color: '#0056A3' },
-  { name: 'Opay', color: '#00A651' },
-  { name: 'Palmpay', color: '#8B4513' },
+  { name: 'Union Bank of Nigeria', color: '#003B7E' },
+  { name: 'United Bank for Africa (UBA)', color: '#D52B1E' },
+  { name: 'Unity Bank', color: '#008C45' },
+  { name: 'Wema Bank', color: '#6B1C8C' },
+  { name: 'Zenith Bank', color: '#E3001B' },
+  // Development Finance Institutions
+  { name: 'Bank of Agriculture', color: '#006400' },
+  { name: 'Bank of Industry', color: '#003B7E' },
+  { name: 'Development Bank of Nigeria', color: '#0056A3' },
+  { name: 'Federal Mortgage Bank of Nigeria', color: '#1A4B8C' },
+  { name: 'Nigerian Export-Import Bank (NEXIM)', color: '#003B7E' },
+  { name: 'The Infrastructure Bank', color: '#1E3A5F' },
+  // Non-Interest Banks
+  { name: 'Alternative Bank', color: '#008C45' },
+  { name: 'Jaiz Bank', color: '#006400' },
+  { name: 'Lotus Bank', color: '#C41E3A' },
+  { name: 'TAJBank', color: '#1A4B8C' },
+  // Major Microfinance & Digital Banks
+  { name: 'Accion Microfinance Bank', color: '#003B7E' },
+  { name: 'Auchi Polytechnic Microfinance Bank', color: '#1A4B8C' },
+  { name: 'CashX', color: '#0056A3' },
+  { name: 'Covenant Microfinance Bank', color: '#6B1C8C' },
+  { name: 'Dot Microfinance Bank', color: '#1E3A5F' },
+  { name: 'Empire Trust Microfinance Bank', color: '#C41E3A' },
+  { name: 'FairMoney Microfinance Bank', color: '#00A651' },
+  { name: 'Finca Microfinance Bank', color: '#003B7E' },
+  { name: 'Infinity Microfinance Bank', color: '#0056A3' },
   { name: 'Kuda Bank', color: '#4B0082' },
+  { name: 'Lapo Microfinance Bank', color: '#E3001B' },
+  { name: 'Mainstreet Microfinance Bank', color: '#1A4B8C' },
+  { name: 'Mint Finex MFB', color: '#008C45' },
+  { name: 'Mkobo MFB', color: '#6B1C8C' },
+  { name: 'Moniepoint Microfinance Bank', color: '#0056A3' },
+  { name: 'Moneyfield Microfinance Bank', color: '#C41E3A' },
+  { name: 'Mutual Trust Microfinance Bank', color: '#003B7E' },
+  { name: 'Opay', color: '#00A651' },
+  { name: 'PalmPay', color: '#8B4513' },
+  { name: 'Peace Microfinance Bank', color: '#008C45' },
+  { name: 'Pecan Trust Microfinance Bank', color: '#1A4B8C' },
+  { name: 'Pryme App', color: '#0056A3' },
+  { name: 'Raven Bank', color: '#4B0082' },
+  { name: 'Rephidim Microfinance Bank', color: '#6B1C8C' },
+  { name: 'Rex Microfinance Bank', color: '#C41E3A' },
+  { name: 'Rubies Bank', color: '#E3001B' },
+  { name: 'Shepherd Trust Microfinance Bank', color: '#008C45' },
+  { name: 'Solid Allianze Microfinance Bank', color: '#0056A3' },
+  { name: 'Sparkle Bank', color: '#6B1C8C' },
+  { name: 'VFD Microfinance Bank', color: '#003B7E' },
 ];
 
 const banksGBP: { name: string; color: string }[] = [
+  // Major Retail & High Street Banks
   { name: 'Barclays', color: '#00AEEF' },
   { name: 'HSBC UK', color: '#DB0011' },
+  { name: 'first direct', color: '#000000' },
   { name: 'Lloyds Bank', color: '#006A4D' },
-  { name: 'NatWest', color: '#42145F' },
-  { name: 'Santander', color: '#EC0000' },
-  { name: 'Nationwide', color: '#002878' },
+  { name: 'Bank of Scotland', color: '#003B7E' },
   { name: 'Halifax', color: '#0073CF' },
-  { name: 'Monzo', color: '#FF4F00' },
-  { name: 'Starling Bank', color: '#572D6B' },
-  { name: 'Revolut', color: '#0075EB' },
-  { name: 'Metro Bank', color: '#D52B1E' },
-  { name: 'TSB', color: '#003B7E' },
-  { name: 'Co-operative Bank', color: '#008C45' },
-  { name: 'Virgin Money', color: '#E3001B' },
-  { name: 'First Direct', color: '#000000' },
+  { name: 'NatWest', color: '#42145F' },
+  { name: 'The Royal Bank of Scotland', color: '#003B7E' },
+  { name: 'Ulster Bank', color: '#C41E3A' },
+  { name: 'Coutts & Company', color: '#1A1A1A' },
+  { name: 'Santander UK', color: '#EC0000' },
+  { name: 'Cater Allen', color: '#003B7E' },
+  { name: 'TSB Bank', color: '#003B7E' },
+  { name: 'C. Hoare & Co', color: '#1A1A1A' },
   { name: 'Clydesdale Bank', color: '#8B0000' },
+  { name: 'Yorkshire Bank', color: '#00AEEF' },
+  // Challenger & Digital Banks
+  { name: 'Aldermore Bank', color: '#00A651' },
+  { name: 'Atom Bank', color: '#662D91' },
+  { name: 'Chase UK', color: '#003B7E' },
+  { name: 'Gatehouse Bank', color: '#006400' },
+  { name: 'Griffin Bank', color: '#0056A3' },
+  { name: 'Kroo Bank', color: '#00A651' },
+  { name: 'Metro Bank', color: '#D52B1E' },
+  { name: 'Monzo', color: '#FF4F00' },
+  { name: 'OakNorth Bank', color: '#003B7E' },
+  { name: 'Paragon Bank', color: '#0056A3' },
+  { name: 'Revolut', color: '#0075EB' },
+  { name: 'Sainsbury\'s Bank', color: '#E3001B' },
+  { name: 'Starling Bank', color: '#572D6B' },
+  { name: 'Tandem Bank', color: '#00AEEF' },
+  { name: 'The Bank of London', color: '#1A1A1A' },
+  { name: 'Vanquis Bank', color: '#E3001B' },
+  { name: 'Virgin Money', color: '#E3001B' },
+  { name: 'Zempler Bank', color: '#0056A3' },
+  { name: 'Zopa Bank', color: '#00A651' },
+  // Specialist & Other UK Banks
+  { name: 'Arbuthnot Latham', color: '#1A1A1A' },
+  { name: 'Handelsbanken', color: '#00A651' },
+  { name: 'OneSavings Bank', color: '#003B7E' },
+  { name: 'Reliance Bank', color: '#E3001B' },
+  { name: 'Secure Trust Bank', color: '#0056A3' },
+  { name: 'Shawbrook Bank', color: '#00AEEF' },
+  { name: 'Standard Chartered Bank', color: '#00A651' },
+  { name: 'The Co-operative Bank', color: '#008C45' },
+  { name: 'Unity Trust Bank', color: '#E3001B' },
+  // Major Building Societies
+  { name: 'Nationwide Building Society', color: '#002878' },
+  { name: 'Coventry Building Society', color: '#006400' },
+  { name: 'Yorkshire Building Society', color: '#00AEEF' },
+  { name: 'Skipton Building Society', color: '#003B7E' },
+  { name: 'Leeds Building Society', color: '#0056A3' },
+  { name: 'Principality Building Society', color: '#C41E3A' },
+  { name: 'West Bromwich Building Society', color: '#003B7E' },
+  { name: 'Newcastle Building Society', color: '#003B7E' },
+  { name: 'Nottingham Building Society', color: '#0056A3' },
+  { name: 'Cumberland Building Society', color: '#008C45' },
+  { name: 'Cambridge Building Society', color: '#003B7E' },
 ];
 
 export function SendDrawer({ open, onClose, prefillCrypto, prefillAmount }: { open: boolean; onClose: () => void; prefillCrypto?: string; prefillAmount?: string }) {
@@ -86,6 +180,8 @@ export function SendDrawer({ open, onClose, prefillCrypto, prefillAmount }: { op
     sortCode: '',
   });
   const [bankSearch, setBankSearch] = useState('');
+  const [otherBank, setOtherBank] = useState('');
+  const [showOther, setShowOther] = useState(false);
 
   const update = (field: string, value: string) => setForm((p: any) => ({ ...p, [field]: value }));
 
@@ -129,7 +225,7 @@ export function SendDrawer({ open, onClose, prefillCrypto, prefillAmount }: { op
     setLoading(false);
   };
 
-  const reset = () => { setStep(1); setDone(false); setBankSearch(''); setForm({ cryptoType: 'BTC', amountCrypto: '', transactionHash: '', fiatCurrency: 'NGN', bankName: '', accountNumber: '', accountName: '', sortCode: '' }); };
+  const reset = () => { setStep(1); setDone(false); setBankSearch(''); setOtherBank(''); setShowOther(false); setForm({ cryptoType: 'BTC', amountCrypto: '', transactionHash: '', fiatCurrency: 'NGN', bankName: '', accountNumber: '', accountName: '', sortCode: '' }); };
 
   const steps = [
     { num: 1, label: 'Wallet', icon: Wallet },
@@ -290,17 +386,39 @@ export function SendDrawer({ open, onClose, prefillCrypto, prefillAmount }: { op
                           .map((b) => (
                             <button
                               key={b.name}
-                              onClick={() => { update('bankName', b.name); setBankSearch(''); }}
-                              className={`w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-colors ${form.bankName === b.name ? 'bg-white/10 border border-white/10' : 'hover:bg-white/5 border border-transparent'}`}
+                              onClick={() => { update('bankName', b.name); setBankSearch(''); setShowOther(false); setOtherBank(''); }}
+                              className={`w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-colors ${form.bankName === b.name && !showOther ? 'bg-white/10 border border-white/10' : 'hover:bg-white/5 border border-transparent'}`}
                             >
                               <div className="h-8 w-8 rounded-lg flex items-center justify-center text-[10px] font-bold text-white shrink-0" style={{ background: b.color }}>
                                 {b.name.charAt(0)}
                               </div>
                               <span className="text-sm text-white">{b.name}</span>
-                              {form.bankName === b.name && <CheckCircle2 className="h-4 w-4 text-emerald-400 ml-auto" />}
+                              {form.bankName === b.name && !showOther && <CheckCircle2 className="h-4 w-4 text-emerald-400 ml-auto" />}
                             </button>
                           ))}
+                        {/* Other option */}
+                        <button
+                          onClick={() => { setShowOther(true); update('bankName', otherBank); }}
+                          className={`w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-colors ${showOther ? 'bg-white/10 border border-white/10' : 'hover:bg-white/5 border border-transparent'}`}
+                        >
+                          <div className="h-8 w-8 rounded-lg flex items-center justify-center text-[10px] font-bold text-white shrink-0 bg-zinc-700">
+                            +
+                          </div>
+                          <span className="text-sm text-zinc-300">Other Bank...</span>
+                          {showOther && <CheckCircle2 className="h-4 w-4 text-emerald-400 ml-auto" />}
+                        </button>
                       </div>
+                      {/* Manual input when Other is selected */}
+                      {showOther && (
+                        <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="mt-2">
+                          <input
+                            value={otherBank}
+                            onChange={(e) => { setOtherBank(e.target.value); update('bankName', e.target.value); }}
+                            placeholder="Type bank name..."
+                            className="w-full bg-white/5 rounded-xl px-3 py-2.5 text-sm text-white placeholder:text-zinc-700 focus:outline-none border border-white/5 focus:border-indigo-500/30 transition-colors"
+                          />
+                        </motion.div>
+                      )}
                     </div>
 
                     {/* Account Number */}
