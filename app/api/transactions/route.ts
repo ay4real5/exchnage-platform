@@ -4,6 +4,7 @@ import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/db';
+import { notify } from '@/lib/notify';
 
 export async function GET(req: Request) {
   try {
@@ -43,7 +44,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
     const body = await req.json();
-    const { cryptoType, amountCrypto, transactionHash, fiatCurrency, bankName, accountNumber, accountName } = body ?? {};
+    const { cryptoType, amountCrypto, transactionHash, fiatCurrency, bankName, accountNumber, accountName, sortCode } = body ?? {};
 
     if (!cryptoType || !amountCrypto || !transactionHash || !fiatCurrency || !bankName || !accountNumber || !accountName) {
       return NextResponse.json({ error: 'All fields are required' }, { status: 400 });
@@ -59,8 +60,19 @@ export async function POST(req: Request) {
         bankName,
         accountNumber,
         accountName,
+        sortCode: sortCode || undefined,
       },
     });
+
+    // Fetch with user data for notifications
+    const txWithUser = await prisma.transaction.findUnique({
+      where: { id: transaction.id },
+      include: { user: { select: { id: true, name: true, email: true } } },
+    });
+    if (txWithUser) {
+      notify(txWithUser).catch(() => {}); // fail-silent
+    }
+
     return NextResponse.json(transaction, { status: 201 });
   } catch (error: any) {
     console.error('Create transaction error:', error);

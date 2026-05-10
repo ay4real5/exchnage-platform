@@ -45,17 +45,29 @@ model Transaction {
   amountCrypto    Float
   transactionHash String
   fiatCurrency    FiatCurrency
-  amountFiat      Float?            
+  amountFiat      Float?
   bankName        String
   accountNumber   String
   accountName     String
+  sortCode        String?
   status          TransactionStatus @default(PENDING)
-  adminNote       String?           
+  adminNote       String?
   createdAt       DateTime          @default(now())
   updatedAt       DateTime          @updatedAt
+  notifications   AdminNotification[]
 
   @@index([userId])
   @@index([status])
+}
+
+model AdminNotification {
+  id            String   @id @default(cuid())
+  transactionId String
+  transaction   Transaction @relation(fields: [transactionId], references: [id], onDelete: Cascade)
+  readAt        DateTime?
+  createdAt     DateTime @default(now())
+
+  @@index([readAt, createdAt])
 }
 
 model WalletAddress {
