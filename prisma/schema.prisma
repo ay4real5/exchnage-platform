@@ -27,14 +27,17 @@ enum FiatCurrency {
 }
 
 model User {
-  id            String   @id @default(cuid())
-  name          String
-  email         String   @unique
-  password      String
-  isAdmin       Boolean  @default(false)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  transactions  Transaction[]
+  id                 String    @id @default(cuid())
+  name               String
+  email              String    @unique
+  password           String
+  isAdmin            Boolean   @default(false)
+  emailVerified      DateTime?
+  verifyToken        String?   @unique
+  verifyTokenExpiry  DateTime?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+  transactions       Transaction[]
 }
 
 model Transaction {

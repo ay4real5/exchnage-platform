@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { signIn } from 'next-auth/react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Mail, Lock, User, ArrowLeftRight, CheckCircle2, Star, ArrowRight, Shield, Zap, Banknote, Check } from 'lucide-react';
+import { Mail, Lock, User, ArrowLeftRight, CheckCircle2, Star, ArrowRight, Shield, Zap, Banknote, Check, KeyRound, RefreshCw } from 'lucide-react';
 import { toast } from 'sonner';
 
 const BG = 'linear-gradient(160deg, #06060f 0%, #0a0a1a 50%, #070710 100%)';
@@ -16,7 +16,8 @@ const INPUT_FOCUS = '1px solid rgba(99,102,241,0.5)';
 const STEPS = [
   { id: 1, label: 'Your info', icon: User },
   { id: 2, label: 'Security', icon: Shield },
-  { id: 3, label: 'You\'re in', icon: Zap },
+  { id: 3, label: 'Verify', icon: KeyRound },
+  { id: 4, label: 'You\'re in', icon: Zap },
 ];
 
 const HOW_IT_WORKS = [
@@ -47,12 +48,41 @@ export function SignupForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [loading, setLoading] = useState(false);
+  const [resendLoading, setResendLoading] = useState(false);
   const [error, setError] = useState('');
   const [direction, setDirection] = useState(1);
 
   const goNext = () => { setDirection(1); setStep(s => s + 1); };
   const goBack = () => { setDirection(-1); setStep(s => s - 1); };
+
+  const handleOtpChange = (val: string, idx: number) => {
+    if (!/^[0-9]?$/.test(val)) return;
+    const next = [...otp];
+    next[idx] = val;
+    setOtp(next);
+    if (val && idx < 5) {
+      const el = document.getElementById(`otp-${idx + 1}`);
+      el?.focus();
+    }
+  };
+
+  const handleOtpKeyDown = (e: React.KeyboardEvent, idx: number) => {
+    if (e.key === 'Backspace' && !otp[idx] && idx > 0) {
+      const el = document.getElementById(`otp-${idx - 1}`);
+      el?.focus();
+    }
+  };
+
+  const handleOtpPaste = (e: React.ClipboardEvent) => {
+    const paste = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 6);
+    if (paste.length === 6) {
+      setOtp(paste.split(''));
+      document.getElementById('otp-5')?.focus();
+      e.preventDefault();
+    }
+  };
 
   const validateStep1 = () => {
     if (!name.trim()) { setError('Please enter your name'); return false; }
@@ -83,8 +113,36 @@ export function SignupForm() {
         const msg = data?.error ?? `Signup failed (${res.status})`;
         setError(msg); toast.error(msg); return;
       }
-      toast.success('Account created!');
+      toast.success('Check your email for a 6-digit code');
+      setOtp(['', '', '', '', '', '']);
       setDirection(1); setStep(3);
+    } catch (err: any) {
+      const msg = err?.message ?? 'Network error';
+      setError(msg); toast.error(msg);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleVerifyOtp = async () => {
+    const code = otp.join('');
+    if (code.length !== 6) { setError('Please enter the full 6-digit code'); return; }
+    setError('');
+    setLoading(true);
+    try {
+      const res = await fetch('/api/verify-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, otp: code }),
+      });
+      let data;
+      try { data = await res.json(); } catch { throw new Error('Server returned invalid response'); }
+      if (!res.ok) {
+        const msg = data?.error ?? 'Verification failed';
+        setError(msg); toast.error(msg); return;
+      }
+      toast.success('Email verified!');
+      setDirection(1); setStep(4);
       setTimeout(() => {
         signIn('credentials', { email, password, redirect: true, callbackUrl: '/dashboard' });
       }, 2000);
@@ -94,6 +152,20 @@ export function SignupForm() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleResendOtp = async () => {
+    setResendLoading(true);
+    try {
+      const res = await fetch('/api/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, password }),
+      });
+      if (res.ok) { toast.success('New code sent!'); setOtp(['', '', '', '', '', '']); }
+      else { toast.error('Failed to resend — please try again'); }
+    } catch { toast.error('Network error'); }
+    finally { setResendLoading(false); }
   };
 
   const slideVariants = {
@@ -144,6 +216,15 @@ export function SignupForm() {
             )}
             {step === 3 && (
               <motion.div key="s3" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold text-indigo-300 mb-6" style={{ background: 'rgba(99,102,241,0.12)', border: '1px solid rgba(99,102,241,0.25)' }}>
+                  <KeyRound className="h-3 w-3" /> Code sent to your inbox
+                </div>
+                <h1 className="text-4xl font-bold text-white leading-tight mb-4">One last step,<br /><span style={{ background: 'linear-gradient(90deg,#818cf8,#a78bfa)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>{name.split(' ')[0] || 'friend'}.</span></h1>
+                <p className="text-zinc-400 text-base leading-relaxed max-w-sm">Enter the 6-digit code we just emailed to <span className="text-white font-medium">{email}</span> to activate your account.</p>
+              </motion.div>
+            )}
+            {step === 4 && (
+              <motion.div key="s4" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
                 <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold text-emerald-300 mb-6" style={{ background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.25)' }}>
                   <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" /> Account active
                 </div>
@@ -333,14 +414,66 @@ export function SignupForm() {
                 </motion.div>
               )}
 
-              {/* ── STEP 3 — SUCCESS ── */}
+              {/* ── STEP 3 — OTP ── */}
               {step === 3 && (
-                <motion.div key="step3" custom={direction} variants={slideVariants} initial="enter" animate="center" exit="exit" transition={{ duration: 0.3 }} className="p-8 text-center">
+                <motion.div key="step3" custom={direction} variants={slideVariants} initial="enter" animate="center" exit="exit" transition={{ duration: 0.3 }} className="p-8">
+                  <div className="mb-7">
+                    <div className="h-11 w-11 rounded-2xl flex items-center justify-center mb-4" style={{ background: 'linear-gradient(135deg,#6366f1,#7c3aed)', boxShadow: '0 8px 20px rgba(99,102,241,0.35)' }}>
+                      <KeyRound className="h-5 w-5 text-white" />
+                    </div>
+                    <h2 className="text-xl font-bold text-white">Check your email</h2>
+                    <p className="text-zinc-500 text-sm mt-1">We sent a 6-digit code to <span className="text-zinc-300">{email}</span></p>
+                  </div>
+
+                  {error && <div className="mb-5 p-3 rounded-xl text-sm text-rose-400" style={{ background: 'rgba(244,63,94,0.08)', border: '1px solid rgba(244,63,94,0.2)' }}>{error}</div>}
+
+                  <div className="flex gap-2 justify-between mb-6" onPaste={handleOtpPaste}>
+                    {otp.map((digit, idx) => (
+                      <input
+                        key={idx}
+                        id={`otp-${idx}`}
+                        type="text"
+                        inputMode="numeric"
+                        maxLength={1}
+                        value={digit}
+                        onChange={e => handleOtpChange(e.target.value, idx)}
+                        onKeyDown={e => handleOtpKeyDown(e, idx)}
+                        className="w-full aspect-square text-center text-xl font-bold text-white rounded-xl outline-none transition-all"
+                        style={{
+                          background: 'rgba(255,255,255,0.04)',
+                          border: digit ? '1px solid rgba(99,102,241,0.6)' : '1px solid rgba(255,255,255,0.07)',
+                          boxShadow: digit ? '0 0 12px rgba(99,102,241,0.2)' : 'none',
+                        }}
+                      />
+                    ))}
+                  </div>
+
+                  <button onClick={handleVerifyOtp} disabled={loading || otp.join('').length !== 6} className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl text-sm font-semibold text-white transition-all hover:opacity-90 disabled:opacity-40" style={{ background: 'linear-gradient(135deg,#6366f1,#7c3aed)', boxShadow: '0 8px 28px rgba(99,102,241,0.35)' }}>
+                    {loading ? (
+                      <><span className="h-4 w-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />Verifying…</>
+                    ) : (
+                      <>Verify &amp; continue <ArrowRight className="h-4 w-4" /></>
+                    )}
+                  </button>
+
+                  <div className="flex items-center justify-center gap-2 mt-4">
+                    <span className="text-xs text-zinc-600">Didn&apos;t get the email?</span>
+                    <button onClick={handleResendOtp} disabled={resendLoading} className="text-xs text-indigo-400 hover:text-indigo-300 font-semibold flex items-center gap-1 transition-colors disabled:opacity-50">
+                      {resendLoading ? <RefreshCw className="h-3 w-3 animate-spin" /> : <RefreshCw className="h-3 w-3" />}
+                      Resend code
+                    </button>
+                  </div>
+                </motion.div>
+              )}
+
+              {/* ── STEP 4 — SUCCESS ── */}
+              {step === 4 && (
+                <motion.div key="step4" custom={direction} variants={slideVariants} initial="enter" animate="center" exit="exit" transition={{ duration: 0.3 }} className="p-8 text-center">
                   <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring', stiffness: 200, damping: 15 }} className="h-20 w-20 rounded-full flex items-center justify-center mx-auto mb-6" style={{ background: 'linear-gradient(135deg,#10b981,#059669)', boxShadow: '0 0 40px rgba(16,185,129,0.4)' }}>
                     <Check className="h-10 w-10 text-white" />
                   </motion.div>
 
-                  <h2 className="text-2xl font-bold text-white mb-2">Account created!</h2>
+                  <h2 className="text-2xl font-bold text-white mb-2">Account verified!</h2>
                   <p className="text-zinc-400 text-sm mb-8">Signing you in automatically, {name.split(' ')[0]}…</p>
 
                   <div className="space-y-3 text-left mb-8">
