@@ -127,21 +127,26 @@ export function TransactionManager() {
   const [fiatInputs, setFiatInputs] = useState<Record<string, string>>({});
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
   const [error, setError] = useState<string | null>(null);
+  const [errorDetails, setErrorDetails] = useState<string | null>(null);
 
   const fetchTransactions = useCallback(async () => {
     setLoading(true);
     setError(null);
+    setErrorDetails(null);
     try {
       const res = await fetch(`/api/transactions?status=${filter}`);
       const data = await res.json();
       if (!res.ok) {
-        setError(data?.details ?? data?.error ?? 'Failed to load transactions');
+        const msg = data?.details || data?.error || 'Failed to load transactions';
+        setError(msg);
+        setErrorDetails(JSON.stringify(data, null, 2));
         setTransactions([]);
         return;
       }
       setTransactions(Array.isArray(data) ? data : []);
     } catch (e: any) {
       setError('Network error — check console');
+      setErrorDetails(e?.message || String(e));
       console.error(e);
     } finally {
       setLoading(false);
@@ -504,12 +509,17 @@ export function TransactionManager() {
       </div>
 
       {error && (
-        <div className="rounded-xl border border-rose-500/20 bg-rose-500/10 p-4 flex items-center gap-3">
-          <AlertTriangle className="h-5 w-5 text-rose-400 flex-shrink-0" />
-          <div>
-            <p className="text-sm font-semibold text-rose-400">{error}</p>
-            <button onClick={fetchTransactions} className="text-xs text-rose-300 underline mt-1">Retry</button>
+        <div className="rounded-xl border border-rose-500/20 bg-rose-500/10 p-4">
+          <div className="flex items-center gap-3 mb-2">
+            <AlertTriangle className="h-5 w-5 text-rose-400 flex-shrink-0" />
+            <div className="flex-1">
+              <p className="text-sm font-semibold text-rose-400">{error}</p>
+            </div>
+            <button onClick={fetchTransactions} className="text-xs px-3 py-1 rounded bg-rose-500/20 text-rose-300 hover:bg-rose-500/30">Retry</button>
           </div>
+          {errorDetails && (
+            <pre className="text-[10px] text-rose-300/70 bg-black/20 p-2 rounded overflow-auto max-h-32 font-mono">{errorDetails}</pre>
+          )}
         </div>
       )}
 
