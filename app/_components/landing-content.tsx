@@ -82,14 +82,14 @@ export function LandingContent() {
     <main style={{ background: BG }} className="relative overflow-hidden text-white">
 
       {/* ── HERO ── */}
-      <section className="relative min-h-screen flex items-center pt-16 px-6">
+      <section className="relative min-h-screen flex items-center pt-16 px-4 sm:px-6">
         {/* Ambient glow */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div style={{ background: 'radial-gradient(ellipse 80% 60% at 60% 30%, rgba(99,102,241,0.12) 0%, transparent 70%)' }} className="absolute inset-0" />
           <div style={{ background: 'radial-gradient(ellipse 50% 40% at 20% 70%, rgba(124,58,237,0.08) 0%, transparent 70%)' }} className="absolute inset-0" />
         </div>
 
-        <div className="relative mx-auto max-w-[1200px] w-full grid md:grid-cols-2 gap-16 items-center py-24">
+        <div className="relative mx-auto max-w-[1200px] w-full grid md:grid-cols-2 gap-10 md:gap-16 items-center py-16 md:py-24">
           {/* Left copy */}
           <motion.div initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.7 }}>
             {/* Pill badge */}
@@ -98,17 +98,17 @@ export function LandingContent() {
               Live exchange · 50,000+ users
             </div>
 
-            <h1 className="text-5xl md:text-6xl font-bold leading-[1.1] tracking-tight mb-6">
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold leading-[1.1] tracking-tight mb-5 md:mb-6">
               Crypto<br />
               <span style={{ background: 'linear-gradient(90deg, #818cf8, #a78bfa)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>cashed out</span>
               <br />in minutes.
             </h1>
 
-            <p className="text-lg text-zinc-400 max-w-md mb-10 leading-relaxed">
+            <p className="text-base md:text-lg text-zinc-400 max-w-md mb-8 md:mb-10 leading-relaxed">
               Convert <span className="text-white font-medium">Bitcoin</span> and <span className="text-white font-medium">USDT</span> to Naira or Pounds — straight to your bank. No middlemen. No drama.
             </p>
 
-            <div className="flex flex-wrap gap-3 mb-12">
+            <div className="flex flex-wrap gap-3 mb-8 md:mb-12">
               <Link href="/signup">
                 <button className="flex items-center gap-2 px-6 py-3.5 rounded-xl text-sm font-semibold text-white transition-all hover:scale-[1.02]" style={{ background: 'linear-gradient(135deg, #6366f1, #7c3aed)', boxShadow: '0 8px 32px rgba(99,102,241,0.35)' }}>
                   Start exchanging <ArrowRight className="h-4 w-4" />
@@ -131,7 +131,7 @@ export function LandingContent() {
           </motion.div>
 
           {/* Right — rate widget mockup */}
-          <motion.div initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.7, delay: 0.15 }} className="relative">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.15 }} className="relative">
             {/* Speed badge */}
             <div className="absolute -top-4 -right-2 z-10 px-3 py-2 rounded-xl text-xs font-bold text-white" style={{ background: 'linear-gradient(135deg,#6366f1,#7c3aed)', boxShadow: '0 4px 20px rgba(99,102,241,0.4)' }}>
               <Zap className="h-3 w-3 inline mr-1" />Speed ~4 min
@@ -203,10 +203,10 @@ export function LandingContent() {
 
       {/* ── STATS BAR ── */}
       <div style={{ borderTop: BORDER, borderBottom: BORDER, background: 'rgba(255,255,255,0.02)' }}>
-        <div className="mx-auto max-w-[1200px] px-6 grid grid-cols-2 md:grid-cols-4 divide-x divide-white/5">
+        <div className="mx-auto max-w-[1200px] px-4 sm:px-6 grid grid-cols-2 md:grid-cols-4">
           {stats.map((s, i) => (
-            <motion.div key={i} initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }} className="py-8 px-6 text-center">
-              <p className="text-3xl font-bold text-white">{s.value}</p>
+            <motion.div key={i} initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }} className="py-6 md:py-8 px-4 md:px-6 text-center" style={{ borderRight: i % 2 === 0 ? BORDER : 'none', borderBottom: i < 2 ? BORDER : 'none' }}>
+              <p className="text-2xl md:text-3xl font-bold text-white">{s.value}</p>
               <p className="text-xs text-zinc-500 mt-1 uppercase tracking-wider">{s.label}</p>
             </motion.div>
           ))}
@@ -214,7 +214,7 @@ export function LandingContent() {
       </div>
 
       {/* ── RATES ── */}
-      <section id="rates" className="py-28 px-6">
+      <section id="rates" className="py-16 md:py-28 px-4 sm:px-6">
         <div className="mx-auto max-w-[1200px]">
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="mb-16">
             <p className="text-xs font-semibold text-indigo-400 uppercase tracking-widest mb-3">Transparent pricing</p>
@@ -222,8 +222,8 @@ export function LandingContent() {
             <p className="text-zinc-500 text-base mt-3 max-w-lg">Refreshed every 60 seconds. Zero spread. The number you see lands in your account.</p>
           </motion.div>
 
-          <div className="rounded-2xl overflow-hidden" style={{ border: BORDER }}>
-            {/* Table header */}
+          {/* Desktop table */}
+          <div className="hidden sm:block rounded-2xl overflow-hidden" style={{ border: BORDER }}>
             <div className="grid grid-cols-5 px-6 py-3 text-[11px] font-semibold text-zinc-600 uppercase tracking-wider" style={{ background: 'rgba(255,255,255,0.02)', borderBottom: BORDER }}>
               <span>You send</span>
               <span>You receive</span>
@@ -264,6 +264,33 @@ export function LandingContent() {
             ))}
           </div>
 
+          {/* Mobile cards */}
+          <div className="sm:hidden space-y-3">
+            {rateRows.map((r, i) => (
+              <motion.div key={i} initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.07 }}
+                className="p-4 rounded-2xl" style={{ background: CARD_BG, border: BORDER }}
+              >
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2.5">
+                    <div className="h-8 w-8 rounded-lg flex items-center justify-center text-xs font-bold text-white" style={{ background: r.color }}>{r.from[0]}</div>
+                    <div>
+                      <p className="text-sm font-semibold text-white">{r.from} → {r.to}</p>
+                      <p className="text-[11px] text-zinc-600">{r.fromName} to {r.toName}</p>
+                    </div>
+                  </div>
+                  <span className="text-xs font-semibold text-emerald-400 px-2 py-0.5 rounded-full" style={{ background: 'rgba(16,185,129,0.1)' }}>0% spread</span>
+                </div>
+                <div className="flex items-end justify-between">
+                  <div>
+                    <p className="text-[11px] text-zinc-600 mb-0.5">{r.per}</p>
+                    <p className="text-base font-bold text-white">{r.rate}</p>
+                  </div>
+                  <span className="text-xs text-zinc-500">{r.time}</span>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+
           <p className="text-xs text-zinc-700 mt-4 flex items-center gap-1.5">
             <RefreshCw className="h-3 w-3" /> Rates update every 60 seconds · A flat processing fee applies at checkout
           </p>
@@ -271,14 +298,14 @@ export function LandingContent() {
       </section>
 
       {/* ── HOW IT WORKS ── */}
-      <section id="how-it-works" className="py-28 px-6">
+      <section id="how-it-works" className="py-16 md:py-28 px-4 sm:px-6">
         <div className="mx-auto max-w-[1200px]">
-          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="mb-16">
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="mb-10 md:mb-16">
             <p className="text-xs font-semibold text-indigo-400 uppercase tracking-widest mb-3">Process</p>
-            <h2 className="text-4xl font-bold text-white">Three steps to cash</h2>
+            <h2 className="text-3xl md:text-4xl font-bold text-white">Three steps to cash</h2>
           </motion.div>
 
-          <div className="grid md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
             {steps.map((step, i) => (
               <motion.div key={i} initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.15 }}>
                 <div className="relative p-7 rounded-2xl h-full" style={{ background: CARD_BG, border: BORDER }}>
@@ -296,14 +323,14 @@ export function LandingContent() {
       </section>
 
       {/* ── FEATURES ── */}
-      <section className="py-28 px-6" style={{ background: 'rgba(255,255,255,0.01)' }}>
+      <section className="py-16 md:py-28 px-4 sm:px-6" style={{ background: 'rgba(255,255,255,0.01)' }}>
         <div className="mx-auto max-w-[1200px]">
-          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="mb-16">
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="mb-10 md:mb-16">
             <p className="text-xs font-semibold text-indigo-400 uppercase tracking-widest mb-3">Why us</p>
-            <h2 className="text-4xl font-bold text-white max-w-sm">Built for speed,<br />secured by design</h2>
+            <h2 className="text-3xl md:text-4xl font-bold text-white max-w-sm">Built for speed,<br />secured by design</h2>
           </motion.div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5">
             {features.map((f, i) => (
               <motion.div key={i} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.08 }}>
                 <div className="p-6 rounded-2xl h-full group hover:bg-white/[0.04] transition-colors" style={{ background: CARD_BG, border: BORDER }}>
@@ -320,13 +347,13 @@ export function LandingContent() {
       </section>
 
       {/* ── ABOUT / TRUST ── */}
-      <section id="about" className="py-28 px-6">
+      <section id="about" className="py-16 md:py-28 px-4 sm:px-6">
         <div className="mx-auto max-w-[1200px]">
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 md:gap-16 items-start">
             {/* Left copy */}
             <motion.div initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}>
               <p className="text-xs font-semibold text-indigo-400 uppercase tracking-widest mb-3">About</p>
-              <h2 className="text-4xl font-bold text-white leading-tight mb-5">
+              <h2 className="text-3xl md:text-4xl font-bold text-white leading-tight mb-5">
                 We move money at the speed<br />
                 <span style={{ background: 'linear-gradient(90deg,#818cf8,#a78bfa)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>of the blockchain.</span>
               </h2>
@@ -351,7 +378,7 @@ export function LandingContent() {
             </motion.div>
 
             {/* Right trust grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-3 md:gap-4">
               {trustPoints.map((tp, i) => (
                 <motion.div key={i} initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}>
                   <div className="p-5 rounded-2xl h-full" style={{ background: CARD_BG, border: BORDER }}>
@@ -369,14 +396,14 @@ export function LandingContent() {
       </section>
 
       {/* ── TESTIMONIALS ── */}
-      <section className="py-28 px-6">
+      <section className="py-16 md:py-28 px-4 sm:px-6">
         <div className="mx-auto max-w-[1200px]">
-          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="mb-16">
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="mb-10 md:mb-16">
             <p className="text-xs font-semibold text-indigo-400 uppercase tracking-widest mb-3">Reviews</p>
-            <h2 className="text-4xl font-bold text-white">Trusted by traders</h2>
+            <h2 className="text-3xl md:text-4xl font-bold text-white">Trusted by traders</h2>
           </motion.div>
 
-          <div className="grid md:grid-cols-3 gap-5">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-5">
             {testimonials.map((t, i) => (
               <motion.div key={i} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.12 }}>
                 <div className="p-6 rounded-2xl h-full flex flex-col" style={{ background: CARD_BG, border: BORDER }}>
@@ -401,15 +428,15 @@ export function LandingContent() {
       </section>
 
       {/* ── CTA ── */}
-      <section className="px-6 pb-28">
+      <section className="px-4 sm:px-6 pb-16 md:pb-28">
         <div className="mx-auto max-w-[1200px]">
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
-            <div className="relative rounded-3xl overflow-hidden px-8 md:px-16 py-16 text-center" style={{ background: 'linear-gradient(135deg, rgba(99,102,241,0.18) 0%, rgba(124,58,237,0.12) 100%)', border: '1px solid rgba(99,102,241,0.25)' }}>
+            <div className="relative rounded-3xl overflow-hidden px-6 md:px-16 py-12 md:py-16 text-center" style={{ background: 'linear-gradient(135deg, rgba(99,102,241,0.18) 0%, rgba(124,58,237,0.12) 100%)', border: '1px solid rgba(99,102,241,0.25)' }}>
               <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse 60% 80% at 50% 0%, rgba(99,102,241,0.15), transparent)' }} />
               <div className="relative z-10">
                 <BadgeCheck className="h-10 w-10 text-indigo-400 mx-auto mb-6" />
-                <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Ready to get started?</h2>
-                <p className="text-zinc-400 text-lg mb-8 max-w-xl mx-auto">Create a free account in seconds. No KYC. No delays. Just fast, reliable crypto payouts.</p>
+                <h2 className="text-2xl md:text-4xl font-bold text-white mb-3 md:mb-4">Ready to get started?</h2>
+                <p className="text-zinc-400 text-base md:text-lg mb-6 md:mb-8 max-w-xl mx-auto">Create a free account in seconds. No KYC. No delays. Just fast, reliable crypto payouts.</p>
                 <Link href="/signup">
                   <button className="inline-flex items-center gap-2 px-8 py-4 rounded-xl font-semibold text-white transition-all hover:scale-[1.02]" style={{ background: 'linear-gradient(135deg, #6366f1, #7c3aed)', boxShadow: '0 8px 32px rgba(99,102,241,0.4)' }}>
                     Create free account <ArrowRight className="h-4 w-4" />
@@ -427,10 +454,10 @@ export function LandingContent() {
       </section>
 
       {/* ── FOOTER ── */}
-      <footer className="px-6 py-14" style={{ borderTop: BORDER }}>
+      <footer className="px-4 sm:px-6 py-12 md:py-14" style={{ borderTop: BORDER }}>
         <div className="mx-auto max-w-[1200px]">
-          <div className="grid md:grid-cols-4 gap-10 mb-10">
-            <div className="md:col-span-2">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-10 mb-10">
+            <div className="col-span-2 md:col-span-2">
               <div className="flex items-center gap-2.5 mb-4">
                 <div className="h-8 w-8 rounded-lg flex items-center justify-center" style={{ background: 'linear-gradient(135deg,#6366f1,#7c3aed)' }}>
                   <ArrowLeftRight className="h-4 w-4 text-white" />
