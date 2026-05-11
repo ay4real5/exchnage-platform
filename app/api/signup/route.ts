@@ -5,8 +5,6 @@ import bcrypt from 'bcryptjs';
 import { Resend } from 'resend';
 import { prisma } from '@/lib/db';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-
 function generateOTP(): string {
   return Math.floor(100000 + Math.random() * 900000).toString();
 }
@@ -42,6 +40,7 @@ export async function POST(req: Request) {
       });
     }
 
+    const resend = new Resend(process.env.RESEND_API_KEY);
     await resend.emails.send({
       from: 'CryptoXchange <onboarding@resend.dev>',
       to: email,
