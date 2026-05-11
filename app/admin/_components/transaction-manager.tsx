@@ -10,7 +10,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 
-const CRYPTO_PRICES: Record<string, number> = { BTC: 64000, ETH: 3400, USDT: 1 };
+const FALLBACK_PRICES: Record<string, number> = { BTC: 103000, ETH: 2500, USDT: 1 };
 
 function fmtDate(d: string) {
   const dt = new Date(d);
@@ -67,7 +67,31 @@ export function TransactionManager() {
   const [expandedTx, setExpandedTx] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [errorDetails, setErrorDetails] = useState<string | null>(null);
+  const [prices, setPrices] = useState<Record<string, number>>(FALLBACK_PRICES);
+  const [pricesLoading, setPricesLoading] = useState(true);
   const searchRef = useRef<HTMLInputElement>(null);
+
+  const fetchPrices = useCallback(async () => {
+    try {
+      const res = await fetch(
+        'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,tether&vs_currencies=usd',
+        { next: { revalidate: 300 } } as any
+      );
+      if (!res.ok) return;
+      const data = await res.json();
+      setPrices({
+        BTC: data?.bitcoin?.usd ?? FALLBACK_PRICES.BTC,
+        ETH: data?.ethereum?.usd ?? FALLBACK_PRICES.ETH,
+        USDT: data?.tether?.usd ?? 1,
+      });
+    } catch { } finally { setPricesLoading(false); }
+  }, []);
+
+  useEffect(() => {
+    fetchPrices();
+    const id = setInterval(fetchPrices, 300000);
+    return () => clearInterval(id);
+  }, [fetchPrices]);
 
   const fetchTransactions = useCallback(async (opts?: { silent?: boolean }) => {
     if (!opts?.silent) setLoading(true);
@@ -152,11 +176,11 @@ export function TransactionManager() {
 
   const pendingUSDVolume = transactions
     .filter((t: any) => t.status === 'PENDING')
-    .reduce((sum: number, t: any) => sum + (t.amountCrypto ?? 0) * (CRYPTO_PRICES[t.cryptoType] ?? 0), 0);
+    .reduce((sum: number, t: any) => sum + (t.amountCrypto ?? 0) * (prices[t.cryptoType] ?? 0), 0);
 
   const totalUSDVolume = transactions
     .filter((t: any) => t.status !== 'REJECTED')
-    .reduce((sum: number, t: any) => sum + (t.amountCrypto ?? 0) * (CRYPTO_PRICES[t.cryptoType] ?? 0), 0);
+    .reduce((sum: number, t: any) => sum + (t.amountCrypto ?? 0) * (prices[t.cryptoType] ?? 0), 0);
 
   const tabs = [
     { key: 'ALL', label: 'All', count: counts.ALL },
@@ -169,7 +193,7 @@ export function TransactionManager() {
   const displayed = statusFilter === 'ALL' ? sorted : sorted.filter((t: any) => t.status === statusFilter);
 
   const TxRow = ({ tx }: { tx: any }) => {
-    const usdVal = (tx.amountCrypto ?? 0) * (CRYPTO_PRICES[tx.cryptoType] ?? 0);
+    const usdVal = (tx.amountCrypto ?? 0) * (prices[tx.cryptoType] ?? 0);
     const link = blockchainLink(tx.transactionHash, tx.cryptoType);
     const badge = statusBadge(tx.status);
     const isExpanded = expandedTx === tx.id;
@@ -505,46 +529,62 @@ export function TransactionManager() {
   };
 
   return (
-    <div className="space-y-4">
-      {/* Header */}
-      <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <h2 className="text-xl font-bold text-white">Transaction Manager</h2>
-          {loading && transactions.length > 0 && <Loader2 className="h-4 w-4 animate-spin text-zinc-500" />}
+    <div className="space-y-5">
+      {/* Header Row */}
+      <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
+        {/* Title + live price ticker */}
+        <div>
+          <div className="flex items-center gap-3">
+            <h2 className="text-2xl font-bold text-white tracking-tight">Transaction Manager</h2>
+            {(loading && transactions.length > 0) && <Loader2 className="h-4 w-4 animate-spin text-zinc-500" />}
+          </div>
+          <div className="flex items-center gap-3 mt-1.5">
+            {pricesLoading ? (
+              <span className="text-xs text-zinc-600">Loading live prices…</span>
+            ) : (
+              <>
+                <span className="text-xs text-zinc-500 flex items-center gap-1">
+                  <span className="text-zinc-600">BTC</span>
+                  <span className="text-white font-mono font-semibold">${prices.BTC.toLocaleString()}</span>
+                </span>
+                <span className="text-zinc-700">·</span>
+                <span className="text-xs text-zinc-500 flex items-center gap-1">
+                  <span className="text-zinc-600">ETH</span>
+                  <span className="text-white font-mono font-semibold">${prices.ETH.toLocaleString()}</span>
+                </span>
+                <span className="text-zinc-700">·</span>
+                <span className="text-[10px] text-zinc-600 flex items-center gap-1">
+                  <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  Live
+                </span>
+              </>
+            )}
+          </div>
         </div>
+
+        {/* Search + Refresh */}
         <div className="flex items-center gap-2">
           <div className="relative">
-            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-zinc-500 pointer-events-none" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-zinc-500 pointer-events-none" />
             <input
               ref={searchRef}
               id="tx-search"
               type="text"
-              placeholder="Search by ID, name, email, hash…"
+              placeholder="Search ID, name, email, hash…"
               value={search}
               onChange={e => setSearch(e.target.value)}
-              className="pl-8 pr-8 py-2 rounded-lg border border-white/10 bg-white/5 text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:border-indigo-500/50 w-72"
+              className="pl-9 pr-8 py-2.5 rounded-xl border border-white/10 bg-white/5 text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:border-indigo-500/40 w-72 transition-colors"
             />
             {search && (
-              <button
-                onClick={() => setSearch('')}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-300"
-              >×</button>
+              <button onClick={() => setSearch('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-300 text-base leading-none">×</button>
             )}
           </div>
           <button
-            onClick={() => setSortDir(d => d === 'desc' ? 'asc' : 'desc')}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-white/10 bg-white/5 text-xs text-zinc-400 hover:text-white hover:bg-white/10 transition-colors"
-            title="Toggle sort order"
-          >
-            <ArrowUpDown className="h-3.5 w-3.5" />
-            {sortDir === 'desc' ? 'Newest' : 'Oldest'}
-          </button>
-          <button
             onClick={() => fetchTransactions()}
-            className="p-2 rounded-lg border border-white/10 bg-white/5 text-zinc-400 hover:text-white hover:bg-white/10 transition-colors"
+            className="p-2.5 rounded-xl border border-white/10 bg-white/5 text-zinc-400 hover:text-white hover:bg-white/10 transition-colors"
             title="Refresh (R)"
           >
-            <RotateCcw className="h-3.5 w-3.5" />
+            <RotateCcw className="h-4 w-4" />
           </button>
         </div>
       </div>
@@ -552,27 +592,51 @@ export function TransactionManager() {
       {/* Stats Bar */}
       {!loading && transactions.length > 0 && (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          <div className="rounded-xl border border-white/5 bg-white/[0.02] px-4 py-3">
-            <p className="text-[10px] text-zinc-500 uppercase tracking-wider">Total Volume</p>
-            <p className="text-lg font-bold text-white mt-0.5">${totalUSDVolume.toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
-            <p className="text-[10px] text-zinc-600 mt-0.5 flex items-center gap-1"><TrendingUp className="h-3 w-3" /> USD equivalent</p>
+          {/* Total Volume */}
+          <div className="rounded-2xl border border-white/8 bg-white/[0.03] px-5 py-4 space-y-1">
+            <p className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider">Total Volume</p>
+            <p className="text-2xl font-bold text-white tabular-nums">
+              ${totalUSDVolume.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+            </p>
+            <p className="text-[11px] text-zinc-600 flex items-center gap-1">
+              <TrendingUp className="h-3 w-3" /> {transactions.filter((t:any) => t.status !== 'REJECTED').length} transactions
+            </p>
           </div>
-          <div className="rounded-xl border border-amber-500/10 bg-amber-500/5 px-4 py-3">
-            <p className="text-[10px] text-amber-500 uppercase tracking-wider">Pending Value</p>
-            <p className="text-lg font-bold text-amber-400 mt-0.5">${pendingUSDVolume.toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
-            <p className="text-[10px] text-amber-600 mt-0.5">{counts.PENDING} transaction{counts.PENDING !== 1 ? 's' : ''} awaiting</p>
+
+          {/* Pending — only show when there are pending */}
+          {counts.PENDING > 0 ? (
+            <div className="rounded-2xl border border-amber-500/20 bg-amber-500/[0.06] px-5 py-4 space-y-1">
+              <p className="text-[11px] font-semibold text-amber-500 uppercase tracking-wider flex items-center gap-1.5">
+                <span className="inline-block w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+                Needs Action
+              </p>
+              <p className="text-2xl font-bold text-amber-400 tabular-nums">
+                ${pendingUSDVolume.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+              </p>
+              <p className="text-[11px] text-amber-600">{counts.PENDING} pending · review now</p>
+            </div>
+          ) : (
+            <div className="rounded-2xl border border-white/8 bg-white/[0.03] px-5 py-4 space-y-1">
+              <p className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider">Pending</p>
+              <p className="text-2xl font-bold text-zinc-600 tabular-nums">—</p>
+              <p className="text-[11px] text-zinc-700">All clear</p>
+            </div>
+          )}
+
+          {/* Completed */}
+          <div className="rounded-2xl border border-emerald-500/15 bg-emerald-500/[0.04] px-5 py-4 space-y-1">
+            <p className="text-[11px] font-semibold text-emerald-600 uppercase tracking-wider">Completed</p>
+            <p className="text-2xl font-bold text-emerald-400 tabular-nums">{counts.CREDITED}</p>
+            <p className="text-[11px] text-emerald-700">{counts.CONFIRMED} awaiting credit</p>
           </div>
-          <div className="rounded-xl border border-emerald-500/10 bg-emerald-500/5 px-4 py-3">
-            <p className="text-[10px] text-emerald-500 uppercase tracking-wider">Completed</p>
-            <p className="text-lg font-bold text-emerald-400 mt-0.5">{counts.CREDITED}</p>
-            <p className="text-[10px] text-emerald-600 mt-0.5">Fiat credited to users</p>
-          </div>
-          <div className="rounded-xl border border-white/5 bg-white/[0.02] px-4 py-3">
-            <p className="text-[10px] text-zinc-500 uppercase tracking-wider">Success Rate</p>
-            <p className="text-lg font-bold text-white mt-0.5">
+
+          {/* Success Rate */}
+          <div className="rounded-2xl border border-white/8 bg-white/[0.03] px-5 py-4 space-y-1">
+            <p className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider">Success Rate</p>
+            <p className="text-2xl font-bold text-white tabular-nums">
               {counts.ALL > 0 ? Math.round((counts.CREDITED / Math.max(counts.ALL - counts.REJECTED, 1)) * 100) : 0}%
             </p>
-            <p className="text-[10px] text-zinc-600 mt-0.5">{counts.REJECTED} rejected</p>
+            <p className="text-[11px] text-zinc-600">{counts.REJECTED} rejected total</p>
           </div>
         </div>
       )}
@@ -638,7 +702,13 @@ export function TransactionManager() {
             <div className="flex-1">Customer</div>
             <div className="w-32 text-right flex-shrink-0">Amount</div>
             <div className="w-28 flex-shrink-0">Status / Age</div>
-            <div className="w-24 text-right flex-shrink-0">Date</div>
+            <button
+              onClick={() => setSortDir(d => d === 'desc' ? 'asc' : 'desc')}
+              className="w-24 text-right flex-shrink-0 flex items-center justify-end gap-1 hover:text-zinc-400 transition-colors"
+            >
+              <ArrowUpDown className="h-3 w-3" />
+              {sortDir === 'desc' ? 'Newest' : 'Oldest'}
+            </button>
             <div className="w-6 flex-shrink-0" />
           </div>
           <AnimatePresence mode="popLayout">
