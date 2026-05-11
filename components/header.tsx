@@ -50,6 +50,10 @@ export function Header() {
             </>
           ) : (
             <>
+              <a href="/#rates" className="px-3 py-2 rounded-lg text-sm text-zinc-400 hover:text-white hover:bg-white/5 transition-all">Rates</a>
+              <a href="/#how-it-works" className="px-3 py-2 rounded-lg text-sm text-zinc-400 hover:text-white hover:bg-white/5 transition-all">How it works</a>
+              <a href="/#about" className="px-3 py-2 rounded-lg text-sm text-zinc-400 hover:text-white hover:bg-white/5 transition-all">About</a>
+              <div className="w-px h-4 bg-white/10 mx-2" />
               <Link href="/login">
                 <button className="px-4 py-2 rounded-lg text-sm font-medium text-zinc-300 hover:text-white hover:bg-white/5 transition-all">
                   Login
@@ -100,6 +104,10 @@ export function Header() {
                 </>
               ) : (
                 <>
+                  <a href="/#rates" onClick={() => setMobileOpen(false)} className="block px-3 py-2.5 rounded-lg text-sm text-zinc-400 hover:text-white hover:bg-white/5 transition-all">Rates</a>
+                  <a href="/#how-it-works" onClick={() => setMobileOpen(false)} className="block px-3 py-2.5 rounded-lg text-sm text-zinc-400 hover:text-white hover:bg-white/5 transition-all">How it works</a>
+                  <a href="/#about" onClick={() => setMobileOpen(false)} className="block px-3 py-2.5 rounded-lg text-sm text-zinc-400 hover:text-white hover:bg-white/5 transition-all">About</a>
+                  <div className="h-px bg-white/5 my-1" />
                   <Link href="/login" onClick={() => setMobileOpen(false)}>
                     <button className="w-full px-3 py-2.5 rounded-lg text-sm text-zinc-300 hover:text-white hover:bg-white/5 transition-all text-left">Login</button>
                   </Link>

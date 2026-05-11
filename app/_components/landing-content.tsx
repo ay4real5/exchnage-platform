@@ -17,12 +17,31 @@ import {
   Star,
   ArrowDown,
   Wallet,
-  BadgeCheck
+  BadgeCheck,
+  RefreshCw,
+  Users,
+  Clock,
+  HeartHandshake
 } from 'lucide-react';
 
 const BG = 'linear-gradient(160deg, #06060f 0%, #0a0a1a 50%, #070710 100%)';
 const CARD_BG = 'rgba(255,255,255,0.03)';
 const BORDER = '1px solid rgba(255,255,255,0.07)';
+
+const rateRows = [
+  { from: 'BTC', fromName: 'Bitcoin', to: 'NGN', toName: 'Naira', rate: '₦ 98,432,000', per: 'per BTC', spread: '0%', time: '~4 min', color: '#f7931a' },
+  { from: 'USDT', fromName: 'Tether', to: 'NGN', toName: 'Naira', rate: '₦ 1,612', per: 'per USDT', spread: '0%', time: '~3 min', color: '#26a17b' },
+  { from: 'ETH', fromName: 'Ethereum', to: 'NGN', toName: 'Naira', rate: '₦ 5,241,000', per: 'per ETH', spread: '0%', time: '~5 min', color: '#627eea' },
+  { from: 'BTC', fromName: 'Bitcoin', to: 'GBP', toName: 'Pounds', rate: '£ 75,820', per: 'per BTC', spread: '0%', time: '~6 min', color: '#f7931a' },
+  { from: 'USDT', fromName: 'Tether', to: 'GBP', toName: 'Pounds', rate: '£ 0.79', per: 'per USDT', spread: '0%', time: '~4 min', color: '#26a17b' },
+];
+
+const trustPoints = [
+  { icon: Shield, title: 'Non-custodial by design', desc: 'We never touch your crypto. You send directly on-chain; we verify and pay out. Your keys stay yours.', color: '#6366f1' },
+  { icon: RefreshCw, title: 'No spread, ever', desc: 'The rate you see is the rate you get. We earn a flat service fee — no hidden markups baked into the price.', color: '#10b981' },
+  { icon: Clock, title: 'Under 5 minutes, or we tell you why', desc: 'Payouts complete in minutes. If there is a delay we proactively notify you — no chasing support.', color: '#f59e0b' },
+  { icon: HeartHandshake, title: 'Built by traders, for traders', desc: 'The team behind CryptoXchange has traded crypto since 2017. We built the tool we wished existed.', color: '#8b5cf6' },
+];
 
 const stats = [
   { value: '$2.5M+', label: 'Volume Traded' },
@@ -194,8 +213,65 @@ export function LandingContent() {
         </div>
       </div>
 
+      {/* ── RATES ── */}
+      <section id="rates" className="py-28 px-6">
+        <div className="mx-auto max-w-[1200px]">
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="mb-16">
+            <p className="text-xs font-semibold text-indigo-400 uppercase tracking-widest mb-3">Transparent pricing</p>
+            <h2 className="text-4xl font-bold text-white">Today&apos;s rates</h2>
+            <p className="text-zinc-500 text-base mt-3 max-w-lg">Refreshed every 60 seconds. Zero spread. The number you see lands in your account.</p>
+          </motion.div>
+
+          <div className="rounded-2xl overflow-hidden" style={{ border: BORDER }}>
+            {/* Table header */}
+            <div className="grid grid-cols-5 px-6 py-3 text-[11px] font-semibold text-zinc-600 uppercase tracking-wider" style={{ background: 'rgba(255,255,255,0.02)', borderBottom: BORDER }}>
+              <span>You send</span>
+              <span>You receive</span>
+              <span className="text-right">Rate</span>
+              <span className="text-center">Spread</span>
+              <span className="text-right">Est. time</span>
+            </div>
+            {rateRows.map((r, i) => (
+              <motion.div key={i} initial={{ opacity: 0, x: -10 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.07 }}
+                className="grid grid-cols-5 px-6 py-4 items-center hover:bg-white/[0.025] transition-colors"
+                style={{ borderBottom: i < rateRows.length - 1 ? BORDER : 'none', background: CARD_BG }}
+              >
+                <div className="flex items-center gap-2.5">
+                  <div className="h-7 w-7 rounded-lg flex items-center justify-center text-[10px] font-bold text-white" style={{ background: r.color }}>{r.from[0]}</div>
+                  <div>
+                    <p className="text-sm font-semibold text-white">{r.from}</p>
+                    <p className="text-[11px] text-zinc-600">{r.fromName}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <ArrowRight className="h-3.5 w-3.5 text-zinc-700" />
+                  <div>
+                    <p className="text-sm font-semibold text-white">{r.to}</p>
+                    <p className="text-[11px] text-zinc-600">{r.toName}</p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <p className="text-sm font-semibold text-white">{r.rate}</p>
+                  <p className="text-[11px] text-zinc-600">{r.per}</p>
+                </div>
+                <div className="text-center">
+                  <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold text-emerald-400" style={{ background: 'rgba(16,185,129,0.1)' }}>{r.spread}</span>
+                </div>
+                <div className="text-right">
+                  <span className="text-sm text-zinc-400">{r.time}</span>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+
+          <p className="text-xs text-zinc-700 mt-4 flex items-center gap-1.5">
+            <RefreshCw className="h-3 w-3" /> Rates update every 60 seconds · A flat processing fee applies at checkout
+          </p>
+        </div>
+      </section>
+
       {/* ── HOW IT WORKS ── */}
-      <section className="py-28 px-6">
+      <section id="how-it-works" className="py-28 px-6">
         <div className="mx-auto max-w-[1200px]">
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="mb-16">
             <p className="text-xs font-semibold text-indigo-400 uppercase tracking-widest mb-3">Process</p>
@@ -239,6 +315,55 @@ export function LandingContent() {
                 </div>
               </motion.div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── ABOUT / TRUST ── */}
+      <section id="about" className="py-28 px-6">
+        <div className="mx-auto max-w-[1200px]">
+          <div className="grid lg:grid-cols-2 gap-16 items-center">
+            {/* Left copy */}
+            <motion.div initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}>
+              <p className="text-xs font-semibold text-indigo-400 uppercase tracking-widest mb-3">About</p>
+              <h2 className="text-4xl font-bold text-white leading-tight mb-5">
+                We move money at the speed<br />
+                <span style={{ background: 'linear-gradient(90deg,#818cf8,#a78bfa)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>of the blockchain.</span>
+              </h2>
+              <p className="text-zinc-400 text-base leading-relaxed mb-6 max-w-md">
+                CryptoXchange started with one frustration: converting crypto to local currency took too long, cost too much, and involved too many middlemen. We fixed that.
+              </p>
+              <p className="text-zinc-500 text-sm leading-relaxed max-w-md">
+                Today we process millions in volume monthly, serving traders and freelancers across Nigeria and the UK. Our infrastructure is purpose-built for speed — not repurposed from a generic payment rail.
+              </p>
+              <div className="flex flex-wrap gap-6 mt-10">
+                {[
+                  { value: '$2.5M+', label: 'Monthly volume' },
+                  { value: '50K+', label: 'Traders served' },
+                  { value: '2021', label: 'Founded' },
+                ].map(s => (
+                  <div key={s.label}>
+                    <p className="text-2xl font-bold text-white">{s.value}</p>
+                    <p className="text-xs text-zinc-600 mt-0.5 uppercase tracking-wider">{s.label}</p>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+
+            {/* Right trust grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {trustPoints.map((tp, i) => (
+                <motion.div key={i} initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}>
+                  <div className="p-5 rounded-2xl h-full" style={{ background: CARD_BG, border: BORDER }}>
+                    <div className="h-9 w-9 rounded-xl flex items-center justify-center mb-4" style={{ background: `${tp.color}18`, border: `1px solid ${tp.color}28` }}>
+                      <tp.icon className="h-4 w-4" style={{ color: tp.color }} />
+                    </div>
+                    <h3 className="text-sm font-semibold text-white mb-2">{tp.title}</h3>
+                    <p className="text-xs text-zinc-600 leading-relaxed">{tp.desc}</p>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
           </div>
         </div>
       </section>
