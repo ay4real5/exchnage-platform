@@ -60,6 +60,6 @@ export async function POST(req: Request) {
     return NextResponse.json({ message: 'OTP sent' }, { status: 201 });
   } catch (error: any) {
     console.error('Signup error:', error);
-    return NextResponse.json({ error: 'Something went wrong' }, { status: 500 });
+    return NextResponse.json({ error: error?.message ?? 'Something went wrong' }, { status: 500 });
   }
 }
