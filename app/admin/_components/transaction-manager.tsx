@@ -119,7 +119,7 @@ export function TransactionManager() {
   const [transactions, setTransactions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('ALL');
-  const [view, setView] = useState<'list' | 'kanban'>('list');
+  const [view, setView] = useState<'list' | 'kanban'>('kanban');
   const [search, setSearch] = useState('');
   const [soundOn, setSoundOn] = useState(false);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
@@ -250,6 +250,7 @@ export function TransactionManager() {
             </div>
             <div className="text-right flex-shrink-0">
               <p className="text-xs text-zinc-500">{fmtDate(tx.createdAt)}</p>
+              <p className="text-[10px] font-mono text-zinc-600 mt-1" title="Transaction ID">#{tx.id.slice(-8)}</p>
             </div>
           </div>
 
@@ -323,12 +324,6 @@ export function TransactionManager() {
                     <p className="text-[10px] text-zinc-600">Account Name</p>
                     <p className="text-zinc-200 font-medium">{tx.accountName}</p>
                   </div>
-                  {tx.sortCode && (
-                    <div>
-                      <p className="text-[10px] text-zinc-600">Sort Code</p>
-                      <p className="text-zinc-200 font-medium font-mono">{tx.sortCode}</p>
-                    </div>
-                  )}
                 </div>
               </div>
 
@@ -541,21 +536,33 @@ export function TransactionManager() {
           </AnimatePresence>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {(['PENDING', 'CONFIRMED', 'CREDITED'] as const).map(status => (
-            <div key={status} className="space-y-3">
-              <div className="flex items-center justify-between px-1">
-                <h3 className={`text-xs font-bold uppercase tracking-wider ${statusConfig(status).color}`}>
-                  {statusConfig(status).label}
-                </h3>
-                <span className="text-xs text-zinc-500 font-mono">{txsByStatus[status].length}</span>
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+          {(['PENDING', 'CONFIRMED', 'CREDITED', 'REJECTED'] as const).map(statusKey => (
+            <div key={statusKey} className="space-y-3 min-h-[200px]">
+              {/* Column Header */}
+              <div className={`flex items-center justify-between p-3 rounded-xl border ${statusConfig(statusKey).border} ${statusConfig(statusKey).bg} backdrop-blur-sm`}>
+                <div className="flex items-center gap-2">
+                  <div className={`w-2 h-2 rounded-full ${statusKey === 'PENDING' ? 'bg-amber-400 animate-pulse' : statusKey === 'CONFIRMED' ? 'bg-cyan-400' : statusKey === 'CREDITED' ? 'bg-emerald-400' : 'bg-rose-400'}`} />
+                  <h3 className={`text-xs font-bold uppercase tracking-wider ${statusConfig(statusKey).color}`}>
+                    {statusConfig(statusKey).label}
+                  </h3>
+                </div>
+                <span className="text-xs font-mono px-2 py-1 rounded-lg bg-black/30 text-zinc-300">
+                  {txsByStatus[statusKey].length}
+                </span>
               </div>
+              {/* Cards Stack */}
               <div className="space-y-3">
-                <AnimatePresence>
-                  {txsByStatus[status].map((tx: any) => (
+                <AnimatePresence mode="popLayout">
+                  {txsByStatus[statusKey].map((tx: any) => (
                     <TxCard key={tx.id} tx={tx} compact />
                   ))}
                 </AnimatePresence>
+                {txsByStatus[statusKey].length === 0 && (
+                  <div className="text-center py-8 text-zinc-600 text-xs border border-dashed border-white/10 rounded-xl">
+                    No {statusConfig(statusKey).label.toLowerCase()}
+                  </div>
+                )}
               </div>
             </div>
           ))}
