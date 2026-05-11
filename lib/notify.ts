@@ -12,11 +12,8 @@ function getExplorerUrl(hash: string, type: string) {
 }
 
 async function createInAppNotification(tx: any) {
-  try {
-    await prisma.adminNotification.create({
-      data: { transactionId: tx.id },
-    });
-  } catch (e) { console.error('In-app notify error:', e); }
+  // AdminNotification table doesn't exist - skip in-app notifications
+  return;
 }
 
 async function sendAdminEmail(tx: any) {
