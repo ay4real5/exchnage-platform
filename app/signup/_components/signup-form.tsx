@@ -4,20 +4,19 @@ import { useState } from 'react';
 import { signIn } from 'next-auth/react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import {
-  Mail,
-  Lock,
-  User,
-  Bitcoin,
-  CheckCircle2,
-  Sparkles,
-  ArrowRight,
-  AlertCircle,
-} from 'lucide-react';
+import { Mail, Lock, User, ArrowLeftRight, CheckCircle2, Zap, Star, ArrowRight, Shield } from 'lucide-react';
 import { toast } from 'sonner';
+
+const BG = 'linear-gradient(160deg, #06060f 0%, #0a0a1a 50%, #070710 100%)';
+const BORDER = '1px solid rgba(255,255,255,0.07)';
+const CARD = 'rgba(255,255,255,0.03)';
+
+const perks = [
+  'Instant settlement under 5 minutes',
+  'Bank-grade security & encryption',
+  'Zero hidden fees, ever',
+  'Real-time competitive rates',
+];
 
 export function SignupForm() {
   const [name, setName] = useState('');
@@ -25,246 +24,274 @@ export function SignupForm() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
+
   const [error, setError] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e?.preventDefault?.();
     setError('');
-
+    
     if (!name || !email || !password || !confirmPassword) {
+      toast.error('Please fill in all fields');
       setError('Please fill in all fields');
       return;
     }
     if (password !== confirmPassword) {
+      toast.error('Passwords do not match');
       setError('Passwords do not match');
       return;
     }
     if ((password?.length ?? 0) < 6) {
+      toast.error('Password must be at least 6 characters');
       setError('Password must be at least 6 characters');
       return;
     }
-
+    
     setLoading(true);
     try {
+      console.log('Submitting signup...', { name, email });
+      
       const res = await fetch('/api/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, email, password }),
       });
-
-      let data: any;
+      
+      console.log('Signup response status:', res.status);
+      
+      let data;
       try {
         data = await res.json();
-      } catch {
+      } catch (parseError) {
+        console.error('Failed to parse response:', parseError);
         throw new Error('Server returned invalid response');
       }
-
+      
+      console.log('Signup response data:', data);
+      
       if (!res.ok) {
         const errorMsg = data?.error ?? `Signup failed (${res.status})`;
-        setError(errorMsg);
         toast.error(errorMsg);
+        setError(errorMsg);
         return;
       }
-
+      
       toast.success('Account created! Signing you in...');
+      
       const signInResult = await signIn('credentials', {
         email,
         password,
         redirect: true,
         callbackUrl: '/dashboard',
       });
-
+      
       if (signInResult?.error) {
+        toast.error('Auto-login failed. Please sign in manually.');
         setError('Auto-login failed. Please sign in manually.');
       }
-    } catch (err: any) {
-      const msg = err?.message ?? 'Network error. Please check your connection.';
-      setError(msg);
-      toast.error(msg);
+    } catch (error: any) {
+      console.error('Signup error:', error);
+      const errorMsg = error?.message ?? 'Network error. Please check your connection.';
+      toast.error(errorMsg);
+      setError(errorMsg);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="relative min-h-[calc(100vh-4rem)] flex items-center justify-center px-4 py-12 bg-white overflow-hidden">
-      {/* mesh gradient background */}
-      <div className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top_left,#dbeafe_0%,transparent_50%),radial-gradient(ellipse_at_top_right,#fce7f3_0%,transparent_50%),radial-gradient(ellipse_at_bottom,#dcfce7_0%,transparent_60%)]" />
-      <div className="absolute inset-0 -z-10 opacity-[0.04] bg-[linear-gradient(to_right,#000_1px,transparent_1px),linear-gradient(to_bottom,#000_1px,transparent_1px)] bg-[size:48px_48px]" />
+    <div className="min-h-screen flex" style={{ background: BG }}>
 
-      <div className="relative w-full max-w-5xl grid lg:grid-cols-2 gap-10 items-center">
-        {/* LEFT — pitch panel */}
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.6 }}
-          className="hidden lg:block text-slate-900"
-        >
-          <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white/70 backdrop-blur px-4 py-1.5 text-sm font-medium text-slate-700 shadow-sm mb-6">
-            <Sparkles className="h-3.5 w-3.5 text-amber-500" />
+      {/* ── LEFT PANEL ── */}
+      <div className="hidden lg:flex flex-col justify-between w-[45%] px-16 py-20 relative overflow-hidden">
+        {/* Ambient glow */}
+        <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse 70% 60% at 30% 40%, rgba(99,102,241,0.12) 0%, transparent 70%)' }} />
+
+        <div className="relative z-10">
+          {/* Logo */}
+          <Link href="/">
+            <div className="flex items-center gap-2.5 mb-16">
+              <div className="h-8 w-8 rounded-lg flex items-center justify-center" style={{ background: 'linear-gradient(135deg,#6366f1,#7c3aed)' }}>
+                <ArrowLeftRight className="h-4 w-4 text-white" />
+              </div>
+              <span className="text-[15px] font-bold text-white tracking-tight">CryptoXchange</span>
+            </div>
+          </Link>
+
+          {/* Headline */}
+          <div className="mb-2 inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold text-indigo-300" style={{ background: 'rgba(99,102,241,0.12)', border: '1px solid rgba(99,102,241,0.25)' }}>
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
             Free forever · No credit card
           </div>
 
-          <h2 className="font-display text-4xl xl:text-5xl font-extrabold tracking-tight leading-[1.1] mb-5">
-            Join{' '}
-            <span className="bg-gradient-to-r from-indigo-600 via-fuchsia-500 to-rose-500 bg-clip-text text-transparent">
-              50,000+ traders
-            </span>{' '}
-            cashing out crypto.
-          </h2>
-          <p className="text-lg text-slate-600 mb-8 max-w-md">
+          <h1 className="text-4xl font-bold text-white leading-tight mt-6 mb-4">
+            Join <span style={{ background: 'linear-gradient(90deg,#818cf8,#a78bfa)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>50,000+</span> traders<br />cashing out crypto.
+          </h1>
+
+          <p className="text-zinc-400 text-base leading-relaxed mb-10 max-w-sm">
             Create your account in seconds and start converting Bitcoin and USDT to Naira or Pounds — straight to your bank.
           </p>
 
-          <ul className="space-y-3">
-            {[
-              'Instant settlement under 5 minutes',
-              'Bank-grade security & encryption',
-              'Zero hidden fees, ever',
-              'Real-time competitive rates',
-            ].map((t) => (
-              <li key={t} className="flex items-center gap-3 text-slate-700">
-                <div className="h-6 w-6 rounded-full bg-emerald-500/10 flex items-center justify-center flex-shrink-0">
-                  <CheckCircle2 className="h-4 w-4 text-emerald-600" />
-                </div>
-                <span className="font-medium">{t}</span>
+          {/* Perks */}
+          <ul className="space-y-3 mb-12">
+            {perks.map((p) => (
+              <li key={p} className="flex items-center gap-3 text-sm text-zinc-300">
+                <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
+                {p}
               </li>
             ))}
           </ul>
+        </div>
 
-          <div className="mt-10 rounded-2xl bg-white border border-slate-200 shadow-lg p-5 max-w-sm">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="h-10 w-10 rounded-full bg-gradient-to-br from-indigo-600 to-fuchsia-500 flex items-center justify-center text-white font-bold">
-                O
-              </div>
-              <div>
-                <div className="font-semibold text-sm">Oluwaseun A.</div>
-                <div className="text-xs text-slate-500">Crypto Trader · 5★</div>
+        {/* Testimonial card */}
+        <div className="relative z-10 p-5 rounded-2xl" style={{ background: CARD, border: BORDER }}>
+          <div className="flex items-center gap-3 mb-3">
+            <div className="h-9 w-9 rounded-full flex items-center justify-center text-sm font-bold text-white" style={{ background: 'linear-gradient(135deg,#6366f1,#7c3aed)' }}>O</div>
+            <div>
+              <p className="text-sm font-semibold text-white">Oluwaseun A.</p>
+              <div className="flex items-center gap-1">
+                <span className="text-xs text-zinc-500">Crypto Trader</span>
+                <span className="text-xs text-zinc-700">·</span>
+                {[...Array(5)].map((_, i) => <Star key={i} className="h-3 w-3 fill-amber-400 text-amber-400" />)}
               </div>
             </div>
-            <p className="text-sm text-slate-600 italic">
-              &quot;Got my Naira in under 3 minutes. Fastest service I&apos;ve used.&quot;
-            </p>
           </div>
-        </motion.div>
+          <p className="text-sm text-zinc-400 italic">&ldquo;Got my Naira in under 3 minutes. Fastest service I&apos;ve used.&rdquo;</p>
+        </div>
+      </div>
 
-        {/* RIGHT — form card */}
+      {/* ── RIGHT PANEL — FORM ── */}
+      <div className="flex-1 flex items-center justify-center px-6 py-16">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.1 }}
-          className="relative"
+          transition={{ duration: 0.5 }}
+          className="w-full max-w-md"
         >
-          {/* glow */}
-          <div className="absolute -inset-4 bg-gradient-to-r from-indigo-500/20 via-fuchsia-500/20 to-rose-500/20 rounded-3xl blur-2xl" />
+          {/* Mobile logo */}
+          <div className="lg:hidden flex items-center gap-2.5 mb-8">
+            <div className="h-8 w-8 rounded-lg flex items-center justify-center" style={{ background: 'linear-gradient(135deg,#6366f1,#7c3aed)' }}>
+              <ArrowLeftRight className="h-4 w-4 text-white" />
+            </div>
+            <span className="text-[15px] font-bold text-white">CryptoXchange</span>
+          </div>
 
-          <div className="relative rounded-3xl bg-white border border-slate-200 shadow-2xl shadow-slate-900/10 p-7 md:p-8">
-            <div className="text-center mb-7">
-              <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-600 via-fuchsia-500 to-rose-500 shadow-lg shadow-indigo-500/30">
-                <Bitcoin className="h-7 w-7 text-white" />
+          {/* Card */}
+          <div className="rounded-3xl p-8" style={{ background: 'rgba(14,14,28,0.9)', border: BORDER, boxShadow: '0 32px 80px rgba(0,0,0,0.5)' }}>
+            {/* Header */}
+            <div className="mb-8">
+              <div className="h-12 w-12 rounded-2xl flex items-center justify-center mb-5" style={{ background: 'linear-gradient(135deg,#6366f1,#7c3aed)', boxShadow: '0 8px 24px rgba(99,102,241,0.4)' }}>
+                <Shield className="h-6 w-6 text-white" />
               </div>
-              <h1 className="font-display text-3xl font-extrabold tracking-tight text-slate-900">
-                Create your account
-              </h1>
-              <p className="text-slate-500 mt-2">Start cashing out crypto in minutes</p>
+              <h2 className="text-2xl font-bold text-white">Create your account</h2>
+              <p className="text-zinc-500 text-sm mt-1">Start cashing out crypto in minutes</p>
             </div>
 
+            {/* Error */}
             {error && (
-              <div className="mb-5 flex items-start gap-3 rounded-xl bg-rose-50 border border-rose-200 p-3 text-sm text-rose-700">
-                <AlertCircle className="h-4 w-4 mt-0.5 flex-shrink-0" />
-                <span className="break-words">{error}</span>
+              <div className="mb-5 p-3 rounded-xl text-sm text-rose-400" style={{ background: 'rgba(244,63,94,0.08)', border: '1px solid rgba(244,63,94,0.2)' }}>
+                {error}
               </div>
             )}
 
             <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="space-y-1.5">
-                <Label htmlFor="name" className="text-slate-700 font-medium text-sm">
-                  Full Name
-                </Label>
+              {/* Full Name */}
+              <div>
+                <label className="block text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-2">Full Name</label>
                 <div className="relative">
-                  <User className="absolute left-3.5 top-3.5 h-4 w-4 text-slate-400" />
-                  <Input
-                    id="name"
+                  <User className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-600" />
+                  <input
+                    type="text"
                     placeholder="Jane Doe"
                     value={name}
                     onChange={(e: any) => setName(e?.target?.value ?? '')}
-                    className="pl-10 h-12 rounded-xl border-slate-200 bg-slate-50/50 text-slate-900 placeholder:text-slate-400 focus-visible:ring-indigo-500 focus-visible:border-indigo-500"
+                    className="w-full pl-10 pr-4 py-3 rounded-xl text-sm text-white placeholder-zinc-600 outline-none transition-all"
+                    style={{ background: 'rgba(255,255,255,0.04)', border: BORDER }}
+                    onFocus={e => (e.target.style.border = '1px solid rgba(99,102,241,0.5)')}
+                    onBlur={e => (e.target.style.border = BORDER)}
                   />
                 </div>
               </div>
 
-              <div className="space-y-1.5">
-                <Label htmlFor="email" className="text-slate-700 font-medium text-sm">
-                  Email address
-                </Label>
+              {/* Email */}
+              <div>
+                <label className="block text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-2">Email address</label>
                 <div className="relative">
-                  <Mail className="absolute left-3.5 top-3.5 h-4 w-4 text-slate-400" />
-                  <Input
-                    id="email"
+                  <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-600" />
+                  <input
                     type="email"
                     placeholder="you@example.com"
                     value={email}
                     onChange={(e: any) => setEmail(e?.target?.value ?? '')}
-                    className="pl-10 h-12 rounded-xl border-slate-200 bg-slate-50/50 text-slate-900 placeholder:text-slate-400 focus-visible:ring-indigo-500 focus-visible:border-indigo-500"
+                    className="w-full pl-10 pr-4 py-3 rounded-xl text-sm text-white placeholder-zinc-600 outline-none transition-all"
+                    style={{ background: 'rgba(255,255,255,0.04)', border: BORDER }}
+                    onFocus={e => (e.target.style.border = '1px solid rgba(99,102,241,0.5)')}
+                    onBlur={e => (e.target.style.border = BORDER)}
                   />
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <Label htmlFor="password" className="text-slate-700 font-medium text-sm">
-                    Password
-                  </Label>
+              {/* Password row */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-2">Password</label>
                   <div className="relative">
-                    <Lock className="absolute left-3.5 top-3.5 h-4 w-4 text-slate-400" />
-                    <Input
-                      id="password"
+                    <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-600" />
+                    <input
                       type="password"
                       placeholder="••••••••"
                       value={password}
                       onChange={(e: any) => setPassword(e?.target?.value ?? '')}
-                      className="pl-10 h-12 rounded-xl border-slate-200 bg-slate-50/50 text-slate-900 placeholder:text-slate-400 focus-visible:ring-indigo-500 focus-visible:border-indigo-500"
+                      className="w-full pl-10 pr-4 py-3 rounded-xl text-sm text-white placeholder-zinc-600 outline-none transition-all"
+                      style={{ background: 'rgba(255,255,255,0.04)', border: BORDER }}
+                      onFocus={e => (e.target.style.border = '1px solid rgba(99,102,241,0.5)')}
+                      onBlur={e => (e.target.style.border = BORDER)}
                     />
                   </div>
                 </div>
-
-                <div className="space-y-1.5">
-                  <Label htmlFor="confirmPassword" className="text-slate-700 font-medium text-sm">
-                    Confirm
-                  </Label>
+                <div>
+                  <label className="block text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-2">Confirm</label>
                   <div className="relative">
-                    <Lock className="absolute left-3.5 top-3.5 h-4 w-4 text-slate-400" />
-                    <Input
-                      id="confirmPassword"
+                    <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-600" />
+                    <input
                       type="password"
                       placeholder="••••••••"
                       value={confirmPassword}
                       onChange={(e: any) => setConfirmPassword(e?.target?.value ?? '')}
-                      className="pl-10 h-12 rounded-xl border-slate-200 bg-slate-50/50 text-slate-900 placeholder:text-slate-400 focus-visible:ring-indigo-500 focus-visible:border-indigo-500"
+                      className="w-full pl-10 pr-4 py-3 rounded-xl text-sm text-white placeholder-zinc-600 outline-none transition-all"
+                      style={{ background: 'rgba(255,255,255,0.04)', border: BORDER }}
+                      onFocus={e => (e.target.style.border = '1px solid rgba(99,102,241,0.5)')}
+                      onBlur={e => (e.target.style.border = BORDER)}
                     />
                   </div>
                 </div>
               </div>
 
-              <Button
+              {/* Submit */}
+              <button
                 type="submit"
-                loading={loading}
-                className="group w-full h-12 rounded-xl bg-gradient-to-r from-indigo-600 via-fuchsia-500 to-rose-500 hover:opacity-90 text-white font-semibold shadow-lg shadow-indigo-500/30 mt-2"
+                disabled={loading}
+                className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl text-sm font-semibold text-white transition-all hover:opacity-90 disabled:opacity-50 mt-2"
+                style={{ background: 'linear-gradient(135deg,#6366f1,#7c3aed)', boxShadow: '0 8px 32px rgba(99,102,241,0.35)' }}
               >
-                Create account
-                <ArrowRight className="h-4 w-4 ml-1 transition-transform group-hover:translate-x-1" />
-              </Button>
+                {loading ? (
+                  <><span className="h-4 w-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />Creating account...</>
+                ) : (
+                  <>Create account <ArrowRight className="h-4 w-4" /></>
+                )}
+              </button>
             </form>
 
-            <p className="text-center text-sm text-slate-500 mt-6">
+            {/* Footer links */}
+            <p className="text-center text-sm text-zinc-600 mt-5">
               Already have an account?{' '}
-              <Link href="/login" className="font-semibold text-slate-900 hover:text-indigo-600 transition-colors">
-                Sign in
-              </Link>
+              <Link href="/login" className="text-indigo-400 hover:text-indigo-300 font-semibold transition-colors">Sign in</Link>
             </p>
-
-            <p className="text-center text-xs text-slate-400 mt-4">
-              By continuing you agree to our Terms & Privacy Policy
+            <p className="text-center text-xs text-zinc-700 mt-2">
+              By continuing you agree to our{' '}
+              <Link href="#" className="hover:text-zinc-500 transition-colors">Terms</Link>
+              {' & '}
+              <Link href="#" className="hover:text-zinc-500 transition-colors">Privacy Policy</Link>
             </p>
           </div>
         </motion.div>
