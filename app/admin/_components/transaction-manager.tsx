@@ -129,8 +129,8 @@ export function TransactionManager() {
   const [error, setError] = useState<string | null>(null);
   const [errorDetails, setErrorDetails] = useState<string | null>(null);
 
-  const fetchTransactions = useCallback(async () => {
-    setLoading(true);
+  const fetchTransactions = useCallback(async (opts?: { silent?: boolean }) => {
+    if (!opts?.silent) setLoading(true);
     setError(null);
     setErrorDetails(null);
     try {
@@ -158,7 +158,7 @@ export function TransactionManager() {
   }, [fetchTransactions]);
 
   useEffect(() => {
-    const id = setInterval(fetchTransactions, 5000);
+    const id = setInterval(() => fetchTransactions({ silent: true }), 30000);
     return () => clearInterval(id);
   }, [fetchTransactions]);
 
@@ -465,7 +465,7 @@ export function TransactionManager() {
           </button>
 
           <button
-            onClick={fetchTransactions}
+            onClick={() => fetchTransactions()}
             className="p-1.5 rounded-lg border border-white/10 bg-white/5 text-zinc-400 hover:text-white hover:bg-white/10 transition-colors"
             title="Refresh (r)"
           >
@@ -515,7 +515,7 @@ export function TransactionManager() {
             <div className="flex-1">
               <p className="text-sm font-semibold text-rose-400">{error}</p>
             </div>
-            <button onClick={fetchTransactions} className="text-xs px-3 py-1 rounded bg-rose-500/20 text-rose-300 hover:bg-rose-500/30">Retry</button>
+            <button onClick={() => fetchTransactions()} className="text-xs px-3 py-1 rounded bg-rose-500/20 text-rose-300 hover:bg-rose-500/30">Retry</button>
           </div>
           {errorDetails && (
             <pre className="text-[10px] text-rose-300/70 bg-black/20 p-2 rounded overflow-auto max-h-32 font-mono">{errorDetails}</pre>
