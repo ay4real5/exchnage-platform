@@ -3,7 +3,7 @@ import { LandingContent } from './_components/landing-content';
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen">
       <Header />
       <LandingContent />
     </div>
