@@ -45,7 +45,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
     const body = await req.json();
-    const { cryptoType, amountCrypto, transactionHash, fiatCurrency, bankName, accountNumber, accountName, sortCode } = body ?? {};
+    const { cryptoType, amountCrypto, transactionHash, fiatCurrency, bankName, accountNumber, accountName } = body ?? {};
 
     if (!cryptoType || !amountCrypto || !transactionHash || !fiatCurrency || !bankName || !accountNumber || !accountName) {
       return NextResponse.json({ error: 'All fields are required' }, { status: 400 });
@@ -61,7 +61,6 @@ export async function POST(req: Request) {
         bankName,
         accountNumber,
         accountName,
-        sortCode: sortCode || undefined,
       },
     });
 
