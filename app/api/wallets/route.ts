@@ -25,12 +25,12 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
     }
     const body = await req.json();
-    const { cryptoType, address, label } = body ?? {};
+    const { cryptoType, address, label, qrCode } = body ?? {};
     if (!cryptoType || !address) {
       return NextResponse.json({ error: 'Crypto type and address are required' }, { status: 400 });
     }
     const wallet = await prisma.walletAddress.create({
-      data: { cryptoType, address, label: label || null },
+      data: { cryptoType, address, label: label || null, qrCode: qrCode || null },
     });
     return NextResponse.json(wallet, { status: 201 });
   } catch (error: any) {

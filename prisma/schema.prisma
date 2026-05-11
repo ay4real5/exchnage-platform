@@ -45,14 +45,15 @@ model Transaction {
   amountCrypto    Float
   transactionHash String
   fiatCurrency    FiatCurrency
-  amountFiat      Float?
+  amountFiat      Float?            
   bankName        String
   accountNumber   String
   accountName     String
   status          TransactionStatus @default(PENDING)
-  adminNote       String?
+  adminNote       String?           
   createdAt       DateTime          @default(now())
   updatedAt       DateTime          @updatedAt
+
   @@index([userId])
   @@index([status])
 }
@@ -62,6 +63,7 @@ model WalletAddress {
   cryptoType  CryptoType
   address     String
   label       String?    
+  qrCode      String?    
   isActive    Boolean    @default(true)
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
